@@ -1,0 +1,1942 @@
+# MASTER PROMPT — GÜVEN MODE
+## Build a Premium Full-Stack Women's Fashion E-Commerce Platform
+
+You are a senior full-stack software architect, experienced React developer, luxury fashion UI/UX designer, database architect, and e-commerce specialist.
+
+Your mission is to design and build a complete, production-oriented, premium women's fashion e-commerce platform called **GÜVEN MODE**.
+
+This is a REAL BUSINESS APPLICATION, not a demo, prototype, landing page, or static mockup.
+
+The application must include:
+- A beautiful, premium storefront for customers.
+- A full shopping experience.
+- Real customer registration and authentication.
+- A shopping cart and real order creation.
+- A secure, powerful administration dashboard.
+- Advanced product, variant, inventory, and order management.
+- A fully designed relational Supabase PostgreSQL database.
+- A secure Node.js/Express backend API.
+- A modern React frontend.
+- Real-time or near-real-time synchronization where appropriate.
+- Production-quality validation, security, testing, and error handling.
+
+**IMPORTANT: Build the actual functional application, not only the visual interface. Every business feature must connect to real API endpoints and real database tables.**
+
+Never use hardcoded fake products, fake orders, fake revenue, or fake customers in the final deployed application.
+
+---
+
+# 1. BRAND IDENTITY
+
+Brand name: GÜVEN MODE
+
+Industry: Women's fashion and clothing retail.
+
+Official Facebook page:
+https://www.facebook.com/profile.php?id=100064032068005
+
+A brand logo image is provided with this request.
+
+Use the supplied brand logo as the primary source of visual identity.
+
+The logo depicts a stylized woman wearing a hat and glasses in a vibrant blue color, together with the text GÜVEN MODE.
+
+Do not arbitrarily redesign or replace the existing logo.
+
+Optimize it for the website:
+- Header version.
+- Footer version.
+- Favicon or simplified icon.
+- Mobile navigation.
+- Admin dashboard.
+- Appropriate transparent-background assets when achievable without reducing quality.
+
+Preserve the brand name exactly, including Ü.
+
+If access to the Facebook page is available, inspect its publicly accessible brand information and visual style for additional inspiration. Do not scrape private information, copy unauthorized images, or invent details. If inaccessible, continue using the provided logo and specifications.
+
+Brand positioning:
+Elegant, confident, feminine, contemporary, fashionable, approachable, and trustworthy.
+
+This boutique should look like a real high-end fashion brand with its own creative direction.
+
+Do not use a generic Shopify-style layout.
+
+---
+
+# 2. DESIGN SYSTEM AND VISUAL DIRECTION
+
+Create a premium fashion editorial aesthetic combining modern minimalism, subtle femininity, and refined luxury.
+
+## Color Palette
+
+Use the following design tokens:
+
+- Primary brand blue: #1598C8
+- Deep blue for interaction: #127AA4
+- Warm ivory background: #FAF8F5
+- Pure white surfaces: #FFFFFF
+- Powder blush: #EAD9D8
+- Soft sand: #E8DDD0
+- Primary text charcoal: #292B30
+- Muted text: #77747A
+- Subtle borders: #EAE5E2
+
+Use ivory and white as dominant colors.
+
+Use brand blue selectively for key call-to-action buttons, links, focus states, selected elements, and highlights.
+
+Use blush pink and sand sparingly in editorial sections, banners, and small decorative elements.
+
+Avoid excessive pink, excessive blue backgrounds, loud gradients, and overly colorful design.
+
+Overall visual style:
+Quiet luxury, contemporary women's fashion editorial, sophisticated simplicity.
+
+## Typography
+
+Headlines: Cormorant Garamond or an equivalent elegant high-contrast serif.
+
+Body and UI: DM Sans or an equivalent clean modern sans-serif.
+
+Use beautiful typography hierarchy, generous whitespace, balanced spacing, elegant product headings, and subtle letter spacing.
+
+## UI Rules
+
+- Extremely polished frontend.
+- Mobile-first responsive layouts.
+- Consistent spacing system.
+- Beautiful hover transitions.
+- Subtle entrance animations.
+- Gentle image zoom on product hover.
+- Sophisticated buttons and form inputs.
+- Rounded corners only where appropriate.
+- Avoid generic cards everywhere.
+- Carefully crafted loading, empty, and error states.
+- No cluttered layouts.
+- WCAG-conscious contrast and keyboard accessibility.
+- Reduced-motion support.
+
+Use Framer Motion or Motion for React when beneficial, without excessive animations.
+
+The final result must feel like a professionally art-directed fashion store.
+
+---
+
+# 3. TECHNICAL STACK — MANDATORY
+
+Frontend:
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query
+- Zustand for lightweight client-side state
+- React Hook Form
+- Zod validation
+- Lucide React
+- Motion for React
+- Recharts for admin analytics
+
+Backend:
+- Node.js
+- Express.js
+- TypeScript
+- Zod for request validation
+- Secure REST API architecture
+- Centralized error-handling middleware
+- Structured logging
+- Secure authentication and authorization middleware
+
+Database and services:
+- Supabase PostgreSQL
+- Supabase Auth
+- Supabase Storage
+- Supabase Row Level Security
+- Supabase Realtime where useful
+
+Use Supabase migrations for reproducible schema changes.
+
+Do not replace the required Express backend with Supabase-only frontend queries.
+
+Architecture:
+
+React storefront and admin dashboard
+→ Express REST API
+→ Supabase PostgreSQL
+
+Use Supabase Auth for authentication.
+
+The frontend may use the Supabase client for authentication/session management and explicitly authorized storage or realtime functionality.
+
+All privileged business operations must be validated and performed securely through the Express backend.
+
+Never expose Supabase service-role keys in browser code.
+
+Use environment variables for all secrets and configuration.
+
+Provide:
+- frontend/
+- backend/
+- supabase/migrations/
+- supabase/seed/
+- README.md
+- .env.example files
+- Relevant tests and configurations
+
+Use modular, clean, maintainable, scalable architecture.
+
+---
+
+# 4. LANGUAGE, REGION AND SETTINGS
+
+Build the website primarily in French.
+
+All customer-facing content, buttons, errors, product information, and order notifications must be in polished, natural French.
+
+Structure the application so that future multilingual support is possible.
+
+Make business settings editable from the administration panel:
+
+- Store name
+- Logo
+- Currency
+- Country
+- Contact email
+- Phone number
+- WhatsApp
+- Social media
+- Shipping zones
+- Delivery charges
+- Free delivery threshold
+- Tax settings
+- Store address
+- Business hours
+- Return policy
+- Privacy policy
+- Terms and conditions
+
+If the store operates in Tunisia, support TND, Tunisian telephone formats, governorates, delegations, postal codes, and cash on delivery.
+
+However, make these configurable rather than hardcoded assumptions.
+
+Default storefront language: French.
+
+---
+
+# 5. PUBLIC STOREFRONT PAGES
+
+Implement complete, functional, beautiful pages.
+
+## 5.1 Homepage
+
+Create a premium editorial homepage with the following sections.
+
+### Announcement Bar
+At the top, display an editable promotional message such as:
+"Découvrez notre nouvelle collection"
+
+Admin must be able to change the content.
+
+### Header
+Include:
+- Brand logo.
+- Main navigation.
+- Search icon.
+- User account icon.
+- Wishlist icon.
+- Shopping bag icon with live quantity badge.
+- Mobile navigation drawer.
+- Sticky header with elegant scroll behavior.
+
+### Main Navigation
+- Accueil
+- Nouveautés
+- Collections
+- Robes
+- Ensembles
+- Promotions
+- À propos
+- Contact
+
+Navigation categories must come from the database, not hardcoded product categories.
+
+### Editorial Hero Section
+Build a visually outstanding hero section.
+
+Use large fashion photography, elegant editorial typography, controlled whitespace, and a prominent call-to-action.
+
+Example:
+"Votre style, votre signature."
+"Découvrez une mode féminine pensée pour chaque instant."
+
+CTA:
+"Découvrir la collection"
+
+The hero image, title, description, CTA text, URL, and publication status must be editable from the admin dashboard.
+
+### Categories Section
+Display elegant visual category tiles.
+
+Category images and names must load from Supabase.
+
+### New Arrivals
+Display recently published products.
+
+### Best Sellers
+Show products based on actual sales data.
+
+### Featured Collection
+Beautiful editorial promotional banner.
+
+### Special Offers
+Products with active discounts.
+
+### Brand Story
+A stylish section explaining the brand.
+
+### Social Section
+Link to the official Facebook page and any configured social accounts.
+
+### Newsletter
+Functional subscription form stored securely in the database with consent.
+
+### Footer
+Include links to:
+- Customer service.
+- Returns.
+- Delivery.
+- Privacy policy.
+- Terms.
+- Contact information.
+- Social media.
+
+All relevant data should be manageable from the admin.
+
+---
+
+# 6. PRODUCT CATALOG AND DISCOVERY
+
+Build a powerful fashion catalog.
+
+Pages:
+- /boutique
+- /nouveautes
+- /collections
+- /collections/:slug
+- /categories/:slug
+- /promotions
+- /recherche
+
+## Product Filters
+
+Support:
+- Category.
+- Collection.
+- Size.
+- Color.
+- Price range.
+- Availability.
+- Discounted products.
+
+## Sorting
+
+Support:
+- Newest.
+- Price ascending.
+- Price descending.
+- Most popular.
+- Best sellers.
+
+Filters must work with the actual PostgreSQL product data through the API.
+
+Use server-side pagination or efficient cursor-based pagination.
+
+Update URL query parameters so filtered catalog views are shareable.
+
+## Product Cards
+
+Each card should display:
+- Product image.
+- Product name.
+- Actual selling price.
+- Original price when discounted.
+- Discount percentage.
+- Available colors if applicable.
+- New arrival indicator.
+- Low stock indicator where appropriate.
+- Favorite icon.
+- Quick view or quick add when the variant is unambiguous.
+
+Hover behavior:
+- Smooth transition to the second product image when available.
+- Gentle image zoom.
+- Elegant add-to-cart interaction.
+
+On mobile, do not rely on hover-only interactions.
+
+---
+
+# 7. PRODUCT DETAIL PAGE
+
+This page is extremely important.
+
+Make it visually premium, informative, and conversion-focused.
+
+Route:
+/produit/:slug
+
+Product layout:
+- Large image gallery.
+- Multiple high-quality photographs.
+- Thumbnail navigation.
+- Mobile swipe gallery.
+- Zoom.
+- Product title.
+- Price.
+- Promotional price.
+- Description.
+- Color options.
+- Size selector.
+- Size guide.
+- Quantity selector.
+- Add to cart button.
+- Wishlist button.
+- Stock availability.
+- Delivery information.
+- Fabric composition.
+- Care instructions.
+- Product measurements.
+- Return information.
+- Related products.
+- Complete your look / suggestions.
+
+Selecting a color or size must correctly identify the exact product variant.
+
+Inventory availability must be checked for the selected variant.
+
+Do not allow customers to purchase unavailable variants.
+
+Display tasteful messages such as:
+"Plus que 2 pièces disponibles"
+
+When a product is unavailable:
+- Disable purchasing.
+- Show "Rupture de stock".
+- Optionally allow back-in-stock notifications with consent.
+
+Never invent positive reviews or misleading scarcity indicators.
+
+Make product photography the main visual focus.
+
+---
+
+# 8. CUSTOMER AUTHENTICATION AND ACCOUNTS
+
+Use Supabase Auth.
+
+Support:
+- Email/password signup.
+- Email verification.
+- Login.
+- Logout.
+- Password reset.
+- Session persistence.
+- Secure password change.
+- Customer profile management.
+
+Do not store plaintext passwords or custom password hashes in public application tables.
+
+Create customer profile records linked to auth.users.
+
+Registration fields:
+- First name.
+- Last name.
+- Email.
+- Optional telephone number.
+- Password handled by Supabase Auth.
+- Optional marketing consent.
+
+Customer dashboard:
+/mon-compte
+
+Sections:
+- Mes informations.
+- Mes commandes.
+- Détails de commande.
+- Mes adresses.
+- Mes favoris.
+- Paramètres du compte.
+
+Support multiple saved delivery addresses.
+
+A customer must only be able to access their own data.
+
+Implement proper authentication states, protected routes, and backend authorization.
+
+Allow guest checkout if practical, but ensure that the order is securely tracked by its unique reference and that no guest can view another customer's information.
+
+Guest checkout must not expose other customers' orders.
+
+---
+
+# 9. SHOPPING CART
+
+Build a real shopping cart with:
+
+- Product image.
+- Name.
+- Selected size.
+- Selected color.
+- Unit price.
+- Discounted price if applicable.
+- Quantity.
+- Line subtotal.
+- Remove item.
+- Change quantity.
+- Cart total.
+- Delivery estimate when address is available.
+- Continue shopping.
+- Checkout button.
+
+Use Zustand for cart state.
+
+Persist guest cart locally and merge safely with the authenticated user's cart when appropriate.
+
+For authenticated users, persist the cart in Supabase so it can be restored across devices.
+
+Never trust client-provided prices, discounts, or stock values.
+
+The backend must recalculate all prices and validate the inventory at checkout.
+
+---
+
+# 10. COMPLETE CHECKOUT SYSTEM
+
+Create a beautiful, simple, optimized checkout flow.
+
+Ideally, use a clean single-page checkout with clearly separated steps.
+
+Sections:
+1. Customer information.
+2. Delivery address.
+3. Delivery method.
+4. Payment method.
+5. Final order review.
+6. Order confirmation.
+
+Required delivery data should include:
+- Customer full name.
+- Phone.
+- Email where applicable.
+- Country.
+- Governorate or region.
+- City/delegation.
+- Street address.
+- Additional address details.
+- Postal code if applicable.
+- Customer notes.
+- Delivery instructions.
+
+Support configurable payment methods.
+
+Initially include cash on delivery where the business enables it.
+
+Design a payment provider abstraction for future online payment integration.
+
+Do not pretend to have working card payments without an authorized and configured payment provider.
+
+Delivery charges must be calculated according to database-defined shipping zones and rules.
+
+Display:
+- Merchandise subtotal.
+- Applied discounts.
+- Delivery charge.
+- Taxes if configured.
+- Final payable total.
+
+When confirming an order:
+
+1. Validate customer inputs.
+2. Validate product and variant status.
+3. Validate current server-side prices.
+4. Validate active promotion rules.
+5. Validate delivery rules.
+6. Validate available stock.
+7. Create the order and order items atomically.
+8. Reserve or deduct inventory according to the chosen policy.
+9. Create a stock movement/audit record.
+10. Save the payment method and initial payment status.
+11. Generate a unique order reference.
+12. Record the original financial amounts.
+13. Commit the database transaction.
+14. Show the confirmation only after successful commit.
+
+Use a PostgreSQL transaction / Supabase RPC with suitable locking and consistent inventory updates to prevent overselling.
+
+Ensure checkout requests are idempotent.
+
+Do not create duplicate orders when the customer double-clicks or retries a request.
+
+If stock becomes insufficient, return a meaningful French error and allow the customer to adjust the cart.
+
+Order confirmation page:
+- Order number.
+- Order status.
+- Ordered items.
+- Customer details.
+- Delivery address.
+- Price breakdown.
+- Payment method.
+- Expected delivery information if known.
+
+Provide order confirmation notification functionality.
+
+---
+
+# 11. ORDER LIFECYCLE
+
+Create a complete order management system.
+
+Possible order statuses:
+
+- pending
+- confirmed
+- preparing
+- shipped
+- delivered
+- cancelled
+- returned
+
+Display French customer labels:
+- En attente
+- Confirmée
+- En préparation
+- Expédiée
+- Livrée
+- Annulée
+- Retournée
+
+Payment statuses should be stored separately:
+- pending
+- paid
+- failed
+- refunded
+- partially_refunded
+
+Order records must contain permanent snapshots of purchased products and prices.
+
+Changing a product name or price later must never rewrite historical order records.
+
+Record every order status change with:
+- Previous status.
+- New status.
+- Administrator or actor.
+- Timestamp.
+- Optional internal note.
+
+Implement controlled status transitions rather than allowing arbitrary state changes.
+
+Handle cancelled or returned orders using a documented inventory-restoration policy.
+
+Avoid double stock restoration.
+
+Store cancellation reasons and return information when applicable.
+
+---
+
+# 12. ADMIN DASHBOARD
+
+This is a major part of the application.
+
+Route:
+/admin
+
+Design an independent, sophisticated dashboard UI that is distinct from the public storefront while preserving the brand identity.
+
+Use a modern sidebar layout with professional tables, charts, filters, and forms.
+
+Admin navigation:
+- Tableau de bord
+- Commandes
+- Produits
+- Catégories
+- Collections
+- Stock
+- Promotions
+- Clients
+- Livraison
+- Contenu du site
+- Rapports
+- Paramètres
+
+Use protected admin routes and proper role-based permissions.
+
+## 12.1 Dashboard Overview
+
+Display real database-driven KPIs:
+- Total orders.
+- Orders awaiting confirmation.
+- Confirmed orders.
+- Orders in preparation.
+- Orders shipped.
+- Delivered orders.
+- Cancelled orders.
+- Total sales revenue.
+- Revenue for selected time period.
+- Total customers.
+- Active products.
+- Out-of-stock products.
+- Low-stock products.
+
+Charts:
+- Sales over time.
+- Order counts over time.
+- Best-selling products.
+- Revenue by category when possible.
+
+Use real SQL aggregations.
+
+Differentiate gross sales, discounts, shipping income, cancelled sales, refunds, and net revenue as appropriate.
+
+Never include unpaid or cancelled orders in realized revenue without an explicit, documented accounting convention.
+
+Add date range controls.
+
+Show recent orders and low-stock alerts.
+
+---
+
+# 13. ADMIN PRODUCT MANAGEMENT
+
+Implement complete product CRUD.
+
+The admin must be able to:
+- Add a product.
+- Edit a product.
+- Publish/unpublish.
+- Archive a product.
+- Upload multiple photos.
+- Reorder images.
+- Choose a primary image.
+- Assign category.
+- Assign collection.
+- Choose featured status.
+- Set descriptions.
+- Set original price.
+- Set selling price.
+- Configure promotion.
+- Configure sizes.
+- Configure colors.
+- Set inventory per variant.
+- Define low-stock alert threshold.
+
+Product form fields:
+
+General:
+- Product name.
+- Slug.
+- SKU.
+- Short description.
+- Full description.
+- Category.
+- Collection.
+- Brand.
+- Fabric/composition.
+- Care instructions.
+- Size guide.
+- SEO title.
+- SEO description.
+- Publishing status.
+
+Media:
+- Main image.
+- Gallery images.
+- Alt text.
+
+Pricing:
+- Base price.
+- Optional compare-at price.
+- Currency.
+- Active promotion reference where applicable.
+
+Variants:
+- Color.
+- Size.
+- Variant SKU.
+- Variant-specific price override if needed.
+- Initial stock.
+- Stock threshold.
+- Variant activation status.
+
+Store prices as exact decimal values or appropriate integer minor units.
+
+Do not use floating-point arithmetic for financial calculations.
+
+Images should be uploaded to Supabase Storage.
+
+Do not store image binary data in PostgreSQL.
+
+Validate upload file type, size, and allowed storage paths.
+
+Generate unique slugs and SKUs with conflict handling.
+
+---
+
+# 14. ADVANCED INVENTORY MANAGEMENT
+
+Inventory accuracy is essential.
+
+Support stock at product-variant level.
+
+Example:
+
+Product: Robe Élégance
+
+Variants:
+- Black / S: 8 units
+- Black / M: 5 units
+- Black / L: 0 units
+- Beige / S: 4 units
+- Beige / M: 9 units
+
+Admin must see:
+
+- Stock on hand.
+- Reserved stock.
+- Available stock.
+- Low-stock threshold.
+- Sold quantity.
+- Stock movement history.
+
+Inventory management features:
+- Initial stock setup.
+- Stock reception/restocking.
+- Manual stock adjustment.
+- Inventory correction.
+- Automatic reservation on order creation.
+- Stock release after eligible cancellations.
+- Deduction according to order fulfillment policy.
+- Inventory movement audit trail.
+- Low-stock alerts.
+- Out-of-stock alerts.
+
+Clearly define:
+available_stock = on_hand - reserved_stock
+
+Never allow available stock to become negative.
+
+Use transactional database operations and concurrency control.
+
+Support safe stock changes under multiple simultaneous purchases.
+
+Every adjustment should record:
+- Product variant.
+- Movement type.
+- Quantity delta.
+- Previous quantity.
+- New quantity.
+- Reason.
+- Related order where applicable.
+- Administrator or system actor.
+- Timestamp.
+
+Preserve history.
+
+Do not allow silent inventory changes.
+
+---
+
+# 15. ADMIN ORDER MANAGEMENT
+
+Build a complete order management interface.
+
+Orders table columns:
+- Order reference.
+- Customer.
+- Phone.
+- Date.
+- Items count.
+- Total amount.
+- Payment method.
+- Payment status.
+- Order status.
+- Delivery city.
+- Actions.
+
+Admin filters:
+- Order status.
+- Payment status.
+- Date range.
+- Customer.
+- Order reference.
+- City.
+- Payment method.
+
+Order details page must include:
+- Order reference.
+- Creation date.
+- Customer name.
+- Customer email.
+- Customer phone.
+- Full delivery address.
+- Ordered products.
+- Product images.
+- Product sizes.
+- Product colors.
+- SKU.
+- Quantities.
+- Original and paid unit prices.
+- Applied discounts.
+- Subtotal.
+- Delivery fees.
+- Taxes.
+- Total.
+- Payment information.
+- Delivery method.
+- Customer instructions.
+- Internal notes.
+- Status history.
+
+Admin actions:
+- Confirm order.
+- Mark preparing.
+- Mark shipped.
+- Mark delivered.
+- Cancel order.
+- Record payment.
+- Add internal notes.
+- Assign tracking reference.
+- Print order details.
+- Print packing slip.
+- Export order information.
+
+Each action must validate permissions and allowed status transitions.
+
+Make pending orders highly visible.
+
+Avoid destructive edits to historical financial data.
+
+---
+
+# 16. CUSTOMER MANAGEMENT
+
+Admin customers page:
+
+- Customer ID.
+- Name.
+- Email.
+- Phone.
+- Registration date.
+- Total orders.
+- Total spent.
+- Last order date.
+- Account status.
+
+Admin must be able to:
+- Search customers.
+- View customer profiles.
+- View order history.
+- View shipping information where authorized.
+- Add internal customer notes if needed.
+
+Never reveal password hashes or authentication secrets.
+
+Protect personal information.
+
+Support privacy-conscious retention and deletion workflows, without corrupting legally required order/accounting history.
+
+---
+
+# 17. DISCOUNTS AND PROMOTIONS
+
+Implement a complete promotion engine.
+
+Types:
+- Percentage discounts.
+- Fixed amount discounts.
+- Product-specific discounts.
+- Category-level discounts.
+- Collection discounts.
+- Coupon codes.
+- Date-based campaigns.
+
+Each promotion can define:
+- Name.
+- Code if applicable.
+- Discount type.
+- Discount value.
+- Start date.
+- End date.
+- Active status.
+- Eligible products.
+- Eligible categories.
+- Minimum order amount.
+- Usage limits.
+- Per-customer usage limits.
+- Combination rules.
+
+Validate promotions on the backend.
+
+Never allow an expired, invalid, unauthorized, or exhausted coupon to apply.
+
+Define deterministic discount stacking rules.
+
+The storefront should display promotional badges and original/discounted prices accurately.
+
+---
+
+# 18. CONTENT MANAGEMENT
+
+Make the website editable without code changes.
+
+Admin should control:
+- Homepage hero.
+- Promotional banners.
+- Featured collections.
+- Homepage sections.
+- Category images.
+- About page.
+- Contact information.
+- Announcement bar.
+- Delivery information.
+- Return policy.
+- Footer content.
+- Social links.
+- SEO metadata.
+
+Use database-backed content records with appropriate validation.
+
+Store uploaded media in Supabase Storage.
+
+For major sections, support publish/unpublish and ordering.
+
+The marketing content must be manageable from the dashboard.
+
+---
+
+# 19. DATABASE SCHEMA — SUPABASE POSTGRESQL
+
+Create actual SQL migrations with primary keys, foreign keys, unique constraints, indexes, check constraints, timestamps, and proper cascading rules.
+
+At minimum, design the following tables:
+
+## Identity and Customers
+
+profiles
+- id (UUID referencing auth.users)
+- first_name
+- last_name
+- email
+- phone
+- avatar_url
+- created_at
+- updated_at
+
+user_roles
+- user_id
+- role (customer/admin/super_admin)
+- created_at
+
+customer_addresses
+- id
+- customer_id
+- label
+- recipient_name
+- phone
+- country
+- region
+- city
+- postal_code
+- street_address
+- address_line_2
+- delivery_instructions
+- is_default
+- created_at
+- updated_at
+
+## Catalog
+
+categories
+- id
+- name
+- slug
+- description
+- image_url
+- parent_id
+- sort_order
+- is_active
+- created_at
+- updated_at
+
+collections
+- id
+- name
+- slug
+- description
+- cover_image_url
+- is_active
+- created_at
+- updated_at
+
+products
+- id
+- category_id
+- name
+- slug
+- sku
+- short_description
+- description
+- composition
+- care_instructions
+- size_guide
+- base_price
+- compare_at_price
+- currency
+- status
+- is_featured
+- seo_title
+- seo_description
+- created_at
+- updated_at
+
+product_collections
+- product_id
+- collection_id
+
+product_images
+- id
+- product_id
+- storage_path
+- alt_text
+- sort_order
+- is_primary
+- created_at
+
+product_variants
+- id
+- product_id
+- sku
+- color_name
+- color_hex
+- size_label
+- price_override
+- is_active
+- created_at
+- updated_at
+
+## Inventory
+
+inventory
+- id
+- variant_id
+- quantity_on_hand
+- quantity_reserved
+- low_stock_threshold
+- updated_at
+
+inventory_movements
+- id
+- variant_id
+- movement_type
+- quantity_delta
+- quantity_before
+- quantity_after
+- reserved_before
+- reserved_after
+- reason
+- reference_type
+- reference_id
+- created_by
+- created_at
+
+## Shopping
+
+carts
+- id
+- customer_id
+- created_at
+- updated_at
+
+cart_items
+- id
+- cart_id
+- variant_id
+- quantity
+- created_at
+- updated_at
+
+wishlists
+- id
+- customer_id
+- created_at
+
+wishlist_items
+- id
+- wishlist_id
+- product_id
+- created_at
+
+## Orders
+
+orders
+- id
+- order_number
+- customer_id (nullable for guests)
+- guest_email
+- customer_name
+- customer_phone
+- status
+- payment_status
+- payment_method
+- currency
+- subtotal_amount
+- discount_amount
+- shipping_amount
+- tax_amount
+- total_amount
+- shipping_address_snapshot (JSONB or normalized immutable snapshot)
+- customer_note
+- admin_note
+- idempotency_key
+- placed_at
+- confirmed_at
+- shipped_at
+- delivered_at
+- cancelled_at
+- created_at
+- updated_at
+
+order_items
+- id
+- order_id
+- product_id
+- variant_id
+- product_name_snapshot
+- sku_snapshot
+- size_snapshot
+- color_snapshot
+- quantity
+- original_unit_price
+- unit_discount
+- final_unit_price
+- line_total
+- created_at
+
+order_status_history
+- id
+- order_id
+- old_status
+- new_status
+- changed_by
+- note
+- created_at
+
+payments
+- id
+- order_id
+- provider
+- provider_reference
+- payment_method
+- amount
+- currency
+- status
+- paid_at
+- created_at
+
+shipments
+- id
+- order_id
+- shipping_method_id
+- tracking_number
+- carrier
+- status
+- shipped_at
+- delivered_at
+- created_at
+
+## Discounts
+
+promotions
+- id
+- name
+- code
+- discount_type
+- discount_value
+- starts_at
+- ends_at
+- min_order_amount
+- usage_limit
+- usage_count
+- per_customer_limit
+- is_active
+- created_at
+- updated_at
+
+promotion_products
+- promotion_id
+- product_id
+
+promotion_categories
+- promotion_id
+- category_id
+
+promotion_redemptions
+- id
+- promotion_id
+- order_id
+- customer_id
+- discount_amount
+- created_at
+
+## Shipping
+
+shipping_zones
+- id
+- name
+- country
+- region
+- is_active
+
+shipping_methods
+- id
+- zone_id
+- name
+- price
+- free_shipping_threshold
+- estimated_min_days
+- estimated_max_days
+- is_active
+
+## CMS
+
+homepage_sections
+- id
+- section_type
+- title
+- subtitle
+- image_path
+- button_text
+- button_url
+- content_json
+- sort_order
+- is_active
+- created_at
+- updated_at
+
+banners
+- id
+- title
+- subtitle
+- image_path
+- mobile_image_path
+- target_url
+- starts_at
+- ends_at
+- is_active
+- created_at
+- updated_at
+
+site_settings
+- key
+- value_json
+- updated_at
+
+content_pages
+- id
+- slug
+- title
+- content
+- seo_title
+- seo_description
+- is_published
+- updated_at
+
+newsletter_subscriptions
+- id
+- email
+- consent_at
+- is_active
+- created_at
+
+## Operations
+
+admin_audit_logs
+- id
+- actor_id
+- action
+- entity_type
+- entity_id
+- metadata_json
+- created_at
+
+notifications
+- id
+- recipient_id
+- type
+- title
+- message
+- related_entity_id
+- read_at
+- created_at
+
+Implement all necessary supporting constraints, database functions, indexes, and supporting tables if required.
+
+The table list is a minimum foundation, not an excuse to omit important relationships.
+
+Use proper enums or constrained text values.
+
+Implement consistent timestamp conventions and UUID generation.
+
+Create migration scripts.
+
+Create only optional, clearly labeled demo seed data.
+
+Do not leave fake seed customers or orders in the production environment.
+
+---
+
+# 20. ROW LEVEL SECURITY AND SECURITY
+
+Enable RLS on applicable exposed Supabase tables.
+
+Security requirements:
+
+- Public visitors can read only published catalog and approved public content.
+- Customers can read and edit only their own profiles, addresses, carts, and wishlists.
+- Customers can read only their own orders.
+- Admin access must be role-verified.
+- Public users must never edit inventory.
+- Customers must never modify product prices.
+- Customers must never arbitrarily modify order payment statuses.
+- Customers must never directly update admin roles.
+- Checkout writes must occur through trusted backend operations.
+- All admin mutations must be protected server-side.
+- Never trust a client-supplied user ID or role.
+- Verify Supabase Auth JWTs on protected API routes.
+- Use secure Supabase JWT verification with trusted issuer and signing keys.
+- Apply rate limiting on authentication-related and sensitive operations.
+- Validate all user inputs.
+- Prevent SQL injection.
+- Avoid XSS vulnerabilities.
+- Configure CORS properly.
+- Use secure headers.
+- Never log passwords or secret tokens.
+- Avoid leaking customer personal data through analytics or logs.
+- Protect storage access using appropriate bucket policies.
+- Use least-privilege permissions.
+
+Provide an initial administrator setup procedure without hardcoding administrator credentials.
+
+For service-role operations, keep credentials exclusively server-side.
+
+Avoid dangerous SECURITY DEFINER functions unless absolutely necessary; if used, carefully constrain permissions and search_path.
+
+---
+
+# 21. EXPRESS API ARCHITECTURE
+
+Organize the backend into:
+
+- Routes.
+- Controllers.
+- Services.
+- Repositories/data access.
+- Validation schemas.
+- Authentication middleware.
+- Authorization middleware.
+- Error handling.
+- Logging.
+- Configuration.
+
+Implement real endpoints such as:
+
+PUBLIC:
+GET /api/products
+GET /api/products/:slug
+GET /api/categories
+GET /api/collections
+GET /api/promotions/active
+GET /api/settings/public
+GET /api/homepage
+
+CUSTOMER:
+GET /api/me
+PATCH /api/me
+GET /api/me/addresses
+POST /api/me/addresses
+PATCH /api/me/addresses/:id
+DELETE /api/me/addresses/:id
+GET /api/cart
+POST /api/cart/items
+PATCH /api/cart/items/:id
+DELETE /api/cart/items/:id
+GET /api/wishlist
+POST /api/wishlist/items
+DELETE /api/wishlist/items/:id
+POST /api/checkout
+GET /api/orders
+GET /api/orders/:id
+
+ADMIN:
+GET /api/admin/dashboard
+GET /api/admin/orders
+GET /api/admin/orders/:id
+PATCH /api/admin/orders/:id/status
+GET /api/admin/products
+POST /api/admin/products
+PATCH /api/admin/products/:id
+DELETE /api/admin/products/:id
+POST /api/admin/products/:id/images
+GET /api/admin/inventory
+POST /api/admin/inventory/adjustments
+GET /api/admin/customers
+GET /api/admin/promotions
+POST /api/admin/promotions
+PATCH /api/admin/promotions/:id
+GET /api/admin/analytics
+GET /api/admin/settings
+PATCH /api/admin/settings
+
+Add other endpoints as needed for fully functional features.
+
+Use consistent API responses and correct HTTP status codes.
+
+Implement server-side pagination, filtering, and validation.
+
+Generate clear API documentation or an OpenAPI specification.
+
+---
+
+# 22. ADMIN INTERFACE DESIGN
+
+Admin should feel like a professional SaaS dashboard.
+
+Visual requirements:
+- Clean light interface.
+- Elegant sidebar.
+- Clear typography.
+- Modern KPI cards.
+- Well-designed charts.
+- Excellent tables.
+- Beautiful modal dialogs.
+- Form validation feedback.
+- Image upload previews.
+- Search and filter functionality.
+- Confirmation dialogs for destructive actions.
+- Toast notifications.
+- Skeleton loaders.
+- Empty states.
+- Clear success and error messages.
+
+Admin interface must be usable on tablets and mobile, while being optimized for desktop operations.
+
+Use brand blue only as a controlled accent.
+
+Provide meaningful data on all dashboard components.
+
+No static placeholder analytics.
+
+---
+
+# 23. SEO, PERFORMANCE AND ACCESSIBILITY
+
+Implement:
+
+- Semantic HTML.
+- Unique page titles.
+- Meta descriptions.
+- Open Graph metadata.
+- Product structured data where appropriate.
+- Breadcrumb navigation.
+- Canonical URLs.
+- Sitemap generation.
+- Robots configuration.
+- Search engine friendly product URLs.
+- Appropriate indexing restrictions for checkout/account/admin.
+- Responsive optimized images.
+- Lazy loading.
+- Image aspect-ratio control.
+- Code splitting.
+- Route-level loading.
+- Caching where appropriate.
+- Accessible form labels.
+- Keyboard navigation.
+- Visible focus indicators.
+- Proper contrast.
+- Reduced-motion support.
+
+Since React + Vite is mandatory, implement suitable prerendering or SSR-compatible SEO solutions for public catalog and product pages where necessary, without replacing the requested stack.
+
+Prioritize excellent Core Web Vitals and mobile performance.
+
+---
+
+# 24. NOTIFICATIONS AND CUSTOMER COMMUNICATION
+
+Prepare professional transactional communications in French.
+
+Events:
+- Order successfully placed.
+- Order confirmed.
+- Order shipped.
+- Order delivered.
+- Order cancelled.
+- Password reset handled through Supabase Auth.
+- Low-stock alert for administrators.
+
+Use a configurable email provider integration, and document required configuration.
+
+Do not claim an email was sent if the provider has not been configured or the transmission failed.
+
+Notification failures must not corrupt committed orders.
+
+Use retry-safe background processing or an outbox pattern for important events.
+
+---
+
+# 25. ANALYTICS AND REPORTING
+
+Build useful admin analytics using real records.
+
+Reports:
+- Sales over time.
+- Orders by status.
+- Best-selling products.
+- Inventory valuation where cost data is available.
+- Low-stock products.
+- Sales by category.
+- Average order value.
+- New customer registrations.
+- Order conversion metrics only where legitimate tracking data is available.
+
+Support date filtering.
+
+Add CSV export for relevant order, catalog, and inventory reports.
+
+Do not calculate business metrics from fabricated data.
+
+---
+
+# 26. ADDITIONAL PREMIUM FEATURES
+
+Implement or prepare the architecture for:
+
+1. Wishlist.
+2. Recently viewed products, with privacy-conscious storage.
+3. Related product recommendations.
+4. Complete the look.
+5. Size guide.
+6. Back-in-stock notifications.
+7. Coupon codes.
+8. Customer order tracking.
+9. WhatsApp contact shortcut if configured.
+10. Shareable product links.
+11. Responsive product galleries.
+12. Branded empty cart experience.
+13. Helpful 404 page.
+14. Newsletter management.
+15. Low-stock warnings.
+16. Editable editorial homepage sections.
+
+Avoid creating unnecessary visual complexity.
+
+---
+
+# 27. TESTING AND RELIABILITY
+
+Implement tests for critical business logic:
+
+- Authentication and authorization.
+- Product CRUD.
+- Variant selection.
+- Inventory adjustment.
+- Concurrent checkout.
+- Overselling prevention.
+- Duplicate order prevention.
+- Discount calculation.
+- Expired coupons.
+- Order cancellation.
+- Stock restoration.
+- Customer data isolation.
+- Role-based access control.
+- Financial totals.
+- Order status transitions.
+
+Include end-to-end testing for major customer journeys.
+
+Suggested tools:
+- Vitest.
+- React Testing Library.
+- Supertest.
+- Playwright.
+
+Use transactions and a controlled test environment for database integration tests.
+
+---
+
+# 28. REQUIRED USER EXPERIENCE
+
+The customer journey must work as follows:
+
+A customer opens the homepage.
+
+She sees a beautiful fashion editorial storefront.
+
+She navigates to a collection.
+
+She filters products by size, color, and price.
+
+She opens a product.
+
+She selects a color and size.
+
+She sees accurate availability.
+
+She adds the item to her cart.
+
+She opens the cart and adjusts quantity.
+
+She proceeds to checkout.
+
+She enters delivery information.
+
+She selects the available payment method.
+
+She confirms her order.
+
+A real order is created in Supabase.
+
+The inventory is reserved according to the stock policy.
+
+The customer sees her real order reference.
+
+The admin dashboard shows the new order.
+
+An authorized admin opens the order.
+
+The admin checks the customer's delivery details.
+
+The admin confirms the order.
+
+The admin changes its status as processing progresses.
+
+The customer can view the updated status in her account.
+
+All of this must function with real data.
+
+---
+
+# 29. REQUIRED ADMIN EXPERIENCE
+
+The admin logs in securely.
+
+The dashboard shows real statistics.
+
+The admin adds a dress called "Robe Élégance".
+
+She uploads four product photos.
+
+She creates size variants S, M, and L.
+
+She assigns stock:
+S = 10
+M = 6
+L = 3
+
+She sets the original price and a valid promotional discount.
+
+She publishes the product.
+
+The product immediately becomes available on the storefront.
+
+A customer buys size M, quantity 2.
+
+The order appears in the administration interface.
+
+The correct inventory reservation occurs automatically.
+
+The admin can see the updated available inventory.
+
+The admin confirms and prepares the order.
+
+Stock movements are recorded consistently.
+
+The order status becomes visible to the customer.
+
+This scenario must be covered by actual working application logic and tests, not only simulated UI.
+
+---
+
+# 30. IMPLEMENTATION WORKFLOW
+
+Work step by step.
+
+PHASE 1 — Project Architecture
+- Analyze requirements.
+- Define folder structure.
+- Set up React/Vite and Express.
+- Create shared TypeScript types where appropriate.
+- Configure tooling and environment variables.
+
+PHASE 2 — Database
+- Design ERD.
+- Create Supabase migrations.
+- Create SQL constraints and indexes.
+- Implement RLS policies.
+- Implement inventory transaction functions.
+- Establish authentication and administrator roles.
+
+PHASE 3 — Backend
+- Build Express API.
+- Build product services.
+- Build customer services.
+- Build checkout.
+- Build order lifecycle.
+- Build inventory management.
+- Build promotion calculations.
+- Implement security and validation.
+
+PHASE 4 — Design System
+- Implement brand colors.
+- Typography.
+- Reusable UI components.
+- Responsive layout.
+- Navigation.
+- Forms.
+- Product cards.
+- Loading and empty states.
+
+PHASE 5 — Storefront
+- Homepage.
+- Catalog.
+- Collections.
+- Product details.
+- Search.
+- Filters.
+- Wishlist.
+- Cart.
+- Authentication.
+- Checkout.
+- Customer account.
+
+PHASE 6 — Admin
+- Dashboard.
+- Product management.
+- Image uploads.
+- Category/collection management.
+- Inventory.
+- Orders.
+- Customers.
+- Promotions.
+- Content management.
+- Settings.
+- Reports.
+
+PHASE 7 — Integration and Testing
+- Connect every frontend feature to real APIs.
+- Run migration and integration tests.
+- Verify customer and admin permissions.
+- Test checkout and inventory concurrency.
+- Validate responsive UI.
+- Fix errors.
+- Remove placeholder logic.
+
+PHASE 8 — Production Readiness
+- Optimize performance.
+- Configure SEO.
+- Document deployment.
+- Document Supabase configuration.
+- Prepare production environment variables.
+- Provide administrator bootstrap instructions.
+
+At each phase, keep the application compilable and runnable.
+
+If the entire application cannot be completed in one execution, create a clear implementation plan and implement working phases in order.
+
+Do not sacrifice database integrity, security, or actual functionality to generate more pages.
+
+---
+
+# 31. DELIVERY REQUIREMENTS
+
+Deliver:
+
+1. Complete source code.
+2. Working React frontend.
+3. Working Express backend.
+4. Supabase SQL migrations.
+5. RLS policies.
+6. Supabase Storage setup.
+7. Authentication and RBAC.
+8. Functional admin dashboard.
+9. Functional product catalog.
+10. Functional cart and checkout.
+11. Proper inventory management.
+12. Order tracking and management.
+13. Database-backed site settings.
+14. Tests for critical workflows.
+15. README with setup instructions.
+16. Environment variable examples.
+17. Local development commands.
+18. Production deployment guidance.
+19. Clear documentation of unfinished integrations or requirements.
+
+Every completed feature must be functional.
+
+Do not disguise incomplete functionality behind decorative buttons.
+
+Do not present dummy analytics as actual store revenue.
+
+Do not assume external services are configured.
+
+---
+
+# 32. FINAL QUALITY STANDARD
+
+Before considering the project complete, verify the following:
+
+- The design is visually beautiful and original.
+- The logo is integrated elegantly.
+- The storefront is fully responsive.
+- The customer can create an account.
+- The customer can log in.
+- The customer can browse actual products.
+- The customer can select variants.
+- The customer can add products to the cart.
+- The customer can place an order.
+- The order exists in Supabase.
+- Inventory updates correctly.
+- Duplicate order submissions are prevented.
+- The admin can see new orders.
+- The admin can update order statuses.
+- The admin can create and edit products.
+- The admin can manage stock and discounts.
+- Customer information is protected.
+- Admin permissions are enforced server-side.
+- Database constraints prevent invalid records.
+- Business calculations are performed server-side.
+- There are no broken navigation routes.
+- There are no nonfunctional buttons masquerading as features.
+- There are no frontend runtime errors.
+- There are no TypeScript build errors.
+- Critical tests pass.
+
+# MOST IMPORTANT FINAL INSTRUCTION
+
+I do not want a generic template.
+
+I want GÜVEN MODE to become a beautiful, trustworthy, modern, fully functional women's fashion shopping destination.
+
+Think like a luxury fashion art director when building the storefront.
+
+Think like a professional SaaS designer when building the admin dashboard.
+
+Think like a senior backend architect when designing business logic.
+
+Think like a database engineer when implementing Supabase.
+
+Focus equally on beauty, usability, security, reliability, and maintainability.
+
+**Start by defining the architecture and a detailed execution plan, then implement the project phase by phase. Build real working features, connect everything to the actual database, and verify the complete shopping and administration workflows.**
