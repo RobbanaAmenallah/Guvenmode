@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Layers, Plus, Edit2, Trash2, X, Check, Loader2, Sparkles, Upload, Image as ImageIcon } from 'lucide-react';
-import { api } from '../../api/client.js';
+import { api, BASE_URL } from '../../api/client.js';
 import { Category, Collection } from '../../types/index.js';
 
 export const AdminCategoriesPage: React.FC = () => {
@@ -39,7 +39,7 @@ export const AdminCategoriesPage: React.FC = () => {
     };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch('/api/admin/upload', {
+    const res = await fetch(`${BASE_URL}/admin/upload`, {
       method: 'POST',
       headers,
       body: formData

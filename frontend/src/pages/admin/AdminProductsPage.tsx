@@ -4,7 +4,7 @@ import {
   Check, AlertCircle, Loader2, Image as ImageIcon, Layers, Minus,
   Upload, Film
 } from 'lucide-react';
-import { api } from '../../api/client.js';
+import { api, BASE_URL } from '../../api/client.js';
 import { Product, Category, ProductVariant } from '../../types/index.js';
 
 interface EditableVariant {
@@ -54,7 +54,7 @@ export const AdminProductsPage: React.FC = () => {
     };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch('/api/admin/upload', {
+    const res = await fetch(`${BASE_URL}/admin/upload`, {
       method: 'POST',
       headers,
       body: formData
