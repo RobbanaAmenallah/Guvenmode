@@ -1,8 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 import { getSupabase } from '../config/supabase.js';
+import { env } from '../config/env.js';
 import { uuidv4 } from '../utils/uuid.js';
+
+const SUPABASE_URL = env.SUPABASE_URL || 'https://ggxtshlqpdibwdgzhlmq.supabase.co';
+const SERVICE_ROLE_KEY = env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdneHRzaGxxcGRpYndkZ3pobG1xIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzA0NjkwMywiZXhwIjoyMTA4NjIyOTAzfQ.uV19m6Pglo619x-2AzDLBWXnvig5rKkdKT_mC_iWzEY';
+
+// Dedicated admin storage client with service_role privileges to guarantee bypass of Storage RLS
+const adminStorageClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 // Memory storage to stream directly to Supabase Storage CDN
 const storage = multer.memoryStorage();
@@ -46,10 +56,8 @@ export class UploadController {
       const safePrefix = file.mimetype.startsWith('video') ? 'video' : 'photo';
       const fileName = `${safePrefix}_${Date.now()}_${uuidv4().substring(0, 8)}${ext}`;
 
-      const supabase = getSupabase();
-
-      if (supabase) {
-        const { data, error } = await supabase.storage
+      if (adminStorageClient) {
+        const { data, error } = await adminStorageClient.storage
           .from('product-media')
           .upload(fileName, file.buffer, {
             contentType: file.mimetype,
@@ -64,7 +72,7 @@ export class UploadController {
           });
         }
 
-        const { data: { publicUrl } } = supabase.storage
+        const { data: { publicUrl } } = adminStorageClient.storage
           .from('product-media')
           .getPublicUrl(fileName);
 
