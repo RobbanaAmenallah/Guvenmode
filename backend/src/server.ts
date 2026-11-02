@@ -67,11 +67,12 @@ app.use(errorHandler);
 
 // Start server
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(env.PORT, () => {
+  const port = Number(process.env.PORT) || env.PORT || 5000;
+  app.listen(port, '0.0.0.0', () => {
     console.log(`====================================================`);
-    console.log(`✨ GÜVEN MODE BACKEND API RUNNING ON PORT ${env.PORT}`);
-    console.log(`🌐 Base URL: http://localhost:${env.PORT}`);
-    console.log(`✨ Health: http://localhost:${env.PORT}/api/health`);
+    console.log(`✨ GÜVEN MODE BACKEND API RUNNING ON PORT ${port}`);
+    console.log(`🌐 Base URL: http://0.0.0.0:${port}`);
+    console.log(`✨ Health: http://0.0.0.0:${port}/api/health`);
     console.log(`====================================================`);
   });
 }
