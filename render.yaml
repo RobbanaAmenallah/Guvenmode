@@ -24,8 +24,9 @@ services:
         sync: false
 
   # GÜVEN MODE - Frontend Boutique (Static Site Vite/React)
-  - type: static
+  - type: web
     name: guvenmode-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
