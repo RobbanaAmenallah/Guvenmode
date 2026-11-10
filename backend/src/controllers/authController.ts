@@ -1,37 +1,52 @@
 import { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
 import { getSupabase } from '../config/supabase.js';
-import { db } from '../data/dbStore.js';
+import { env } from '../config/env.js';
 import { UserProfile, UserRole } from '../types/index.js';
 import { uuidv4 } from '../utils/uuid.js';
+
+const loginSchema = z.object({
+  email: z.string().trim().email('Adresse e-mail invalide'),
+  password: z.string().min(1, 'Mot de passe requis'),
+});
+
+const registerSchema = z.object({
+  email: z.string().trim().email('Adresse e-mail invalide'),
+  password: z
+    .string()
+    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+    .regex(/^(?=.*[A-Za-z])(?=.*\d).+$/, 'Le mot de passe doit contenir au moins une lettre et un chiffre'),
+  firstName: z.string().trim().min(1, 'Prénom requis').max(80).optional(),
+  lastName: z.string().trim().max(80).optional(),
+  phone: z.string().trim().max(30).optional(),
+});
 
 export class AuthController {
   public static async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password } = req.body;
-
-      if (!email || !password) {
+      const parsed = loginSchema.safeParse(req.body);
+      if (!parsed.success) {
         return res.status(400).json({
           success: false,
-          error: { message: 'Adresse e-mail et mot de passe requis', statusCode: 400 }
+          error: { message: parsed.error.issues[0]?.message || 'Identifiants invalides', statusCode: 400 }
         });
       }
 
-      const cleanEmail = String(email).trim().toLowerCase();
+      const cleanEmail = parsed.data.email.toLowerCase();
+      const password = parsed.data.password;
       const supabase = getSupabase();
 
       if (supabase) {
         const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
           email: cleanEmail,
-          password: String(password)
+          password
         });
 
         if (authErr || !authData.user) {
           return res.status(401).json({
             success: false,
             error: {
-              message: authErr?.message === 'Invalid login credentials'
-                ? 'Adresse e-mail ou mot de passe incorrect'
-                : authErr?.message || 'Échec de la connexion',
+              message: 'Adresse e-mail ou mot de passe incorrect',
               statusCode: 401
             }
           });
@@ -90,7 +105,14 @@ export class AuthController {
         });
       }
 
-      // Fallback in-memory
+      if (env.NODE_ENV === 'production') {
+        return res.status(503).json({
+          success: false,
+          error: { message: 'Service d\'authentification temporairement indisponible', statusCode: 503 }
+        });
+      }
+
+      // Development-only offline fallback
       const isAdmin = cleanEmail === 'guvenmode@gmail.com' || cleanEmail === 'direction@guvenmode.com';
       const userProfile: UserProfile = {
         id: isAdmin ? '4f03dbf1-2b9e-4a6e-ace5-f8b9189de5be' : uuidv4(),
@@ -108,7 +130,7 @@ export class AuthController {
         success: true,
         data: {
           user: userProfile,
-          token: `token-${Date.now()}`
+          token: `${isAdmin ? 'admin' : 'user'}-${userProfile.id}`
         }
       });
     } catch (err) {
@@ -118,30 +140,24 @@ export class AuthController {
 
   public static async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password, firstName, lastName, phone } = req.body;
-
-      if (!email || !password) {
+      const parsed = registerSchema.safeParse(req.body);
+      if (!parsed.success) {
         return res.status(400).json({
           success: false,
-          error: { message: 'Adresse e-mail et mot de passe requis', statusCode: 400 }
+          error: { message: parsed.error.issues[0]?.message || 'Données d\'inscription invalides', statusCode: 400 }
         });
       }
 
-      if (String(password).length < 6) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'Le mot de passe doit contenir au moins 6 caractères', statusCode: 400 }
-        });
-      }
-
-      const cleanEmail = String(email).trim().toLowerCase();
+      const { firstName, lastName, phone } = parsed.data;
+      const cleanEmail = parsed.data.email.toLowerCase();
+      const password = parsed.data.password;
       const supabase = getSupabase();
 
       if (supabase) {
         // Create user in Supabase Auth
         const { data: authData, error: authErr } = await supabase.auth.signUp({
           email: cleanEmail,
-          password: String(password),
+          password,
           options: {
             data: {
               first_name: firstName || '',
@@ -164,7 +180,7 @@ export class AuthController {
         }
 
         const user = authData.user;
-        const token = authData.session?.access_token || `token-${Date.now()}`;
+        const token = authData.session?.access_token || '';
 
         // Insert into public.profiles
         await supabase.from('profiles').upsert({
@@ -177,10 +193,10 @@ export class AuthController {
         }, { onConflict: 'id' });
 
         // Assign customer role
-        await supabase.from('user_roles').insert({
+        await supabase.from('user_roles').upsert({
           user_id: user.id,
           role: 'customer'
-        });
+        }, { onConflict: 'user_id,role' });
 
         const userProfile: UserProfile = {
           id: user.id,
@@ -198,14 +214,23 @@ export class AuthController {
           success: true,
           data: {
             user: userProfile,
-            token
+            token,
+            requiresEmailConfirmation: !authData.session
           }
         });
       }
 
-      // Fallback
+      if (env.NODE_ENV === 'production') {
+        return res.status(503).json({
+          success: false,
+          error: { message: 'Service d\'inscription temporairement indisponible', statusCode: 503 }
+        });
+      }
+
+      // Development-only offline fallback
+      const userId = uuidv4();
       const userProfile: UserProfile = {
-        id: uuidv4(),
+        id: userId,
         email: cleanEmail,
         first_name: firstName || cleanEmail.split('@')[0],
         last_name: lastName || '',
@@ -220,7 +245,7 @@ export class AuthController {
         success: true,
         data: {
           user: userProfile,
-          token: `token-${Date.now()}`
+          token: `user-${userId}`
         }
       });
     } catch (err) {

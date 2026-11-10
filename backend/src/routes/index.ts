@@ -14,7 +14,7 @@ apiRouter.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     store: 'GÜVEN MODE API',
-    version: '1.0.1-service-role-verified',
+    version: '1.1.0-security-hardened',
     timestamp: new Date().toISOString()
   });
 });

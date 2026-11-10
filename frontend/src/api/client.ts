@@ -14,7 +14,6 @@ export class ApiError extends Error {
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('guven_auth_token');
-  const adminKey = localStorage.getItem('guven_admin_key') || 'guven-admin-2026';
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -23,11 +22,6 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  // Allow admin calls
-  if (adminKey && endpoint.startsWith('/admin')) {
-    headers['x-admin-key'] = adminKey;
   }
 
   const url = `${BASE_URL}${endpoint}`;

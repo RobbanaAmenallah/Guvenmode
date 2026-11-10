@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
@@ -9,8 +10,10 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().optional(),
   SUPABASE_ANON_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
-  JWT_SECRET: z.string().default('guven-mode-jwt-secret-key-super-secure-2026'),
+  JWT_SECRET: z.string().min(16).optional(),
+  ADMIN_SECRET_KEY: z.string().min(16).optional(),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
+  ALLOWED_ORIGINS: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -20,4 +23,7 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-export const env = parsed.data;
+export const env = {
+  ...parsed.data,
+  JWT_SECRET: parsed.data.JWT_SECRET || crypto.randomBytes(32).toString('hex'),
+};

@@ -1,5 +1,7 @@
+import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 import { getSupabase } from '../config/supabase.js';
+import { env } from '../config/env.js';
 
 export interface AuthenticatedUser {
   id: string;
@@ -15,13 +17,26 @@ declare global {
   }
 }
 
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
-    const adminKey = req.headers['x-admin-key'];
+    const rawAdminKey = req.headers['x-admin-key'];
+    const adminKey = typeof rawAdminKey === 'string' ? rawAdminKey : '';
 
-    // 1. Direct admin access via secure secret key (for admin dashboard / local dev)
-    if (adminKey === 'guven-admin-2026' || adminKey === process.env.ADMIN_SECRET_KEY) {
+    // 1. Optional machine-to-machine admin key ONLY if explicitly configured with a strong non-default secret
+    if (
+      env.ADMIN_SECRET_KEY &&
+      env.ADMIN_SECRET_KEY !== 'guven-admin-2026' &&
+      adminKey &&
+      safeEqual(adminKey, env.ADMIN_SECRET_KEY)
+    ) {
       req.user = {
         id: '00000000-0000-0000-0000-000000000001',
         email: 'admin@guvenmode.com',
@@ -34,7 +49,11 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       return next();
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1]?.trim();
+    if (!token) {
+      return next();
+    }
+
     const supabase = getSupabase();
 
     if (supabase) {
@@ -43,22 +62,20 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
         return next();
       }
 
-      // Check user role from public.user_roles in Supabase
+      // Check user role strictly from public.user_roles in Supabase
       const { data: roleData } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      const isDefaultAdmin = user.email?.toLowerCase() === 'guvenmode@gmail.com';
-
       req.user = {
         id: user.id,
         email: user.email || '',
-        role: (roleData?.role as any) || (isDefaultAdmin ? 'super_admin' : 'customer')
+        role: (roleData?.role as AuthenticatedUser['role']) || 'customer'
       };
-    } else {
-      // Development simulated token
+    } else if (env.NODE_ENV !== 'production') {
+      // Development-only offline fallback when Supabase is not configured
       if (token.startsWith('admin-')) {
         req.user = {
           id: 'admin-dev-id',

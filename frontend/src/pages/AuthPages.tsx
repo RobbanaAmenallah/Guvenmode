@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShieldCheck, User, Lock, Mail, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import { Lock, Mail, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore.js';
 import { BrandLogo } from '../components/common/BrandLogo.js';
 import { api, ApiError } from '../api/client.js';
@@ -39,7 +39,7 @@ export const AuthPages: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) =>
           navigate(from);
         }
       } else {
-        const res = await api.post<{ user: any; token: string }>('/auth/register', {
+        const res = await api.post<{ user: any; token: string; requiresEmailConfirmation?: boolean }>('/auth/register', {
           email: email.trim(),
           password,
           firstName: firstName.trim(),
@@ -47,8 +47,14 @@ export const AuthPages: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) =>
           phone: phone.trim()
         });
 
+        if (res.requiresEmailConfirmation || !res.token) {
+          setErrorMessage('Compte créé ! Veuillez confirmer votre adresse e-mail avant de vous connecter.');
+          return;
+        }
+
         login(res.user, res.token);
-        navigate('/mon-compte');
+        const from = (location.state as any)?.from?.pathname || '/mon-compte';
+        navigate(from);
       }
     } catch (err: any) {
       if (err instanceof ApiError) {
@@ -56,27 +62,6 @@ export const AuthPages: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) =>
       } else {
         setErrorMessage(err.message || 'Une erreur est survenue lors de la connexion.');
       }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAdminOfficialLogin = async () => {
-    setErrorMessage(null);
-    setLoading(true);
-    setEmail('guvenmode@gmail.com');
-    setPassword('GuvenMode2026!');
-
-    try {
-      const res = await api.post<{ user: any; token: string }>('/auth/login', {
-        email: 'guvenmode@gmail.com',
-        password: 'GuvenMode2026!'
-      });
-
-      login(res.user, res.token);
-      navigate('/admin');
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Échec de la connexion administrateur.');
     } finally {
       setLoading(false);
     }
@@ -153,6 +138,7 @@ export const AuthPages: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) =>
               <input
                 type="password"
                 required
+                minLength={mode === 'register' ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -160,6 +146,11 @@ export const AuthPages: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) =>
               />
               <Lock className="w-4 h-4 text-guven-muted absolute left-3 top-3" />
             </div>
+            {mode === 'register' && (
+              <p className="text-[11px] text-guven-muted mt-1">
+                Minimum 8 caractères, incluant au moins une lettre et un chiffre.
+              </p>
+            )}
           </div>
 
           {mode === 'register' && (
@@ -193,19 +184,6 @@ export const AuthPages: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) =>
             )}
           </button>
         </form>
-
-        {/* Quick Admin Official Access Bar */}
-        <div className="pt-4 border-t border-guven-border/60 text-center space-y-3">
-          <p className="text-[11px] text-guven-muted font-light">Compte Administrateur Officiel (Supabase) :</p>
-          <button
-            onClick={handleAdminOfficialLogin}
-            disabled={loading}
-            className="w-full py-2.5 px-4 bg-guven-charcoal hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
-          >
-            <ShieldCheck className="w-4 h-4 text-guven-blue" />
-            <span>Connexion Directe Admin (guvenmode@gmail.com)</span>
-          </button>
-        </div>
 
         {/* Switch Link */}
         <div className="text-center text-xs text-guven-muted">

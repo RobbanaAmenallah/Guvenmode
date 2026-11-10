@@ -44,10 +44,18 @@ export class CheckoutController {
         });
       }
 
-      // If user is authenticated, attach their customerId
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: { message: 'Connexion requise pour passer une commande', statusCode: 401 }
+        });
+      }
+
+      // Strictly bind order to authenticated user ID (prevent spoofing customerId)
       const input = {
         ...parsed.data,
-        customerId: req.user?.id || parsed.data.customerId
+        customerId: req.user.id,
+        guestEmail: req.user.email || parsed.data.guestEmail
       };
 
       const order = await CheckoutService.processCheckout(input);

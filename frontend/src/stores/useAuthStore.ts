@@ -24,9 +24,6 @@ export const useAuthStore = create<AuthState>()(
       login: (user, token) => {
         const isAdmin = user.role === 'admin' || user.role === 'super_admin';
         localStorage.setItem('guven_auth_token', token);
-        if (isAdmin) {
-          localStorage.setItem('guven_admin_key', 'guven-admin-2026');
-        }
         set({
           user,
           token,
@@ -40,7 +37,6 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         localStorage.removeItem('guven_auth_token');
-        localStorage.removeItem('guven_admin_key');
         set({
           user: null,
           token: null,

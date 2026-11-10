@@ -25,6 +25,13 @@ export class OrderController {
 
   public static async getOrderByReference(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: { message: 'Authentification requise pour consulter une commande', statusCode: 401 }
+        });
+      }
+
       const reference = String(req.params.reference);
       let order = await OrderService.getOrderByNumber(reference);
 
@@ -39,9 +46,8 @@ export class OrderController {
         });
       }
 
-      // Security check: if order belongs to a registered customer and an authenticated user requests it,
-      // verify it belongs to them or requester is admin. (Guests can track by exact reference)
-      if (order.customer_id && req.user && req.user.role === 'customer' && req.user.id !== order.customer_id) {
+      const isAdmin = req.user.role === 'admin' || req.user.role === 'super_admin';
+      if (!isAdmin && order.customer_id !== req.user.id) {
         return res.status(403).json({
           success: false,
           error: { message: 'Accès non autorisé à cette commande', statusCode: 403 }

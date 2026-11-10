@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { env } from './config/env.js';
 import { authenticate } from './middlewares/auth.js';
+import { globalLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { apiRouter } from './routes/index.js';
 
@@ -15,39 +16,52 @@ const frontendDist = path.resolve(__dirname, '../../frontend/dist');
 
 const app = express();
 
-// Security & Middleware
+// Trust first reverse proxy (Render / Cloudflare) for accurate client IP rate limiting
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
+// Security Headers
 app.use(helmet({
   contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  hsts: env.NODE_ENV === 'production' ? { maxAge: 31536000, includeSubDomains: true } : false
 }));
+
+// Strict CORS Allowlist
+const extraOrigins = env.ALLOWED_ORIGINS
+  ? env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+  : [];
+
+const allowedOrigins = new Set<string>([
+  env.FRONTEND_URL,
+  'https://guvenmode-frontend.onrender.com',
+  ...extraOrigins,
+  ...(env.NODE_ENV !== 'production' ? ['http://localhost:3000', 'http://localhost:5173'] : [])
+]);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow non-browser requests or same-origin
+    // Allow non-browser clients (health checks, mobile apps, curl) or same-origin
     if (!origin) return callback(null, true);
-    
-    // Allow specified FRONTEND_URL, local dev, or any *.onrender.com deployment
-    if (
-      origin === env.FRONTEND_URL ||
-      origin === 'http://localhost:3000' ||
-      origin === 'http://localhost:5173' ||
-      origin.endsWith('.onrender.com') ||
-      env.NODE_ENV !== 'production'
-    ) {
+    if (allowedOrigins.has(origin)) {
       return callback(null, true);
     }
-    // Also allow any frontend origin in production to avoid CORS headaches
-    return callback(null, true);
+    const corsErr: any = new Error('Origine non autorisée par la politique CORS');
+    corsErr.statusCode = 403;
+    return callback(corsErr);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-key']
 }));
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Global Authentication parser
+app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+
+// Global rate limiting & Authentication parser
+app.use('/api', globalLimiter);
 app.use(authenticate);
 
 // Mount API routes

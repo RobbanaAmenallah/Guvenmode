@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { requireAdmin } from '../middlewares/auth.js';
+import { uploadLimiter } from '../middlewares/rateLimiter.js';
 import { AdminController } from '../controllers/adminController.js';
 import { UploadController, uploadMiddleware } from '../controllers/uploadController.js';
 
@@ -9,7 +10,7 @@ export const adminRoutes = Router();
 adminRoutes.use(requireAdmin);
 
 // Direct File & Video Upload to Supabase Storage CDN (PC Import)
-adminRoutes.post('/upload', uploadMiddleware.single('file'), UploadController.uploadFile);
+adminRoutes.post('/upload', uploadLimiter, uploadMiddleware.single('file'), UploadController.uploadFile);
 
 // Dashboard
 adminRoutes.get('/dashboard', AdminController.getDashboard);

@@ -30,13 +30,10 @@ export const AdminCategoriesPage: React.FC = () => {
 
   const uploadFile = async (file: File): Promise<string> => {
     const token = localStorage.getItem('guven_auth_token');
-    const adminKey = localStorage.getItem('guven_admin_key') || 'guven-admin-2026';
     const formData = new FormData();
     formData.append('file', file);
 
-    const headers: Record<string, string> = {
-      'x-admin-key': adminKey
-    };
+    const headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     const res = await fetch(`${BASE_URL}/admin/upload`, {

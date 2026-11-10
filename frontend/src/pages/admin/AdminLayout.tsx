@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, ShoppingBag, Package, Layers, 
   Tag, Users, Settings, ExternalLink, LogOut, 
@@ -12,34 +12,47 @@ import { api } from '../../api/client.js';
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, user } = useAuthStore();
+  const { logout, user, isAuthenticated, isAdmin } = useAuthStore();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  // Poll / fetch notifications periodically
+  // Poll / fetch notifications periodically only for verified admins
   const fetchNotifications = async () => {
+    if (!isAuthenticated || !isAdmin) return;
     try {
       const res: any = await api.get('/admin/notifications');
       setNotifications(res.notifications || []);
       setUnreadCount(res.unreadCount || 0);
-    } catch (err) {
-      // Quiet fail if not yet authenticated
+    } catch (err: any) {
+      if (err?.statusCode === 401 || err?.statusCode === 403) {
+        logout();
+        navigate('/connexion');
+      }
     }
   };
 
   useEffect(() => {
+    if (!isAuthenticated || !isAdmin) return;
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 5000); // Poll every 5s for live notifications
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuthenticated, isAdmin]);
 
   // Close mobile drawer on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/connexion" state={{ from: location }} replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleLogout = () => {
     logout();
