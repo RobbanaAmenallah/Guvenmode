@@ -295,27 +295,58 @@ export class AdminController {
   // Customers
   public static async getCustomers(req: Request, res: Response, next: NextFunction) {
     try {
-      // Aggregate real customers from orders and profiles
       const customersMap: Record<string, any> = {};
+      const supabase = getSupabase();
 
-      for (const order of db.orders) {
-        const key = order.customer_id || order.customer_phone;
+      // 1. Fetch real orders from Supabase PostgreSQL
+      const { orders } = await OrderService.getOrders({ limit: 1000 });
+
+      for (const order of orders) {
+        const key = order.customer_phone || order.customer_id || order.guest_email || order.customer_name;
+        if (!key) continue;
+
         if (!customersMap[key]) {
           customersMap[key] = {
-            id: key,
+            id: order.customer_id || key,
             name: order.customer_name,
-            phone: order.customer_phone,
+            phone: order.customer_phone || 'Non renseigné',
             email: order.guest_email || 'client@guvenmode.tn',
             totalOrders: 0,
             totalSpent: 0,
             lastOrderDate: order.created_at,
-            city: order.shipping_address_snapshot.city
+            city: order.shipping_address_snapshot?.city || 'Tunis'
           };
         }
         customersMap[key].totalOrders += 1;
         customersMap[key].totalSpent = Number((customersMap[key].totalSpent + order.total_amount).toFixed(3));
         if (new Date(order.created_at) > new Date(customersMap[key].lastOrderDate)) {
           customersMap[key].lastOrderDate = order.created_at;
+        }
+      }
+
+      // 2. Also merge real registered profiles from Supabase PostgreSQL
+      if (supabase) {
+        try {
+          const { data: profiles } = await supabase.from('profiles').select('*');
+          if (profiles) {
+            for (const p of profiles) {
+              const key = p.phone || p.id || p.email;
+              if (key && !customersMap[key]) {
+                customersMap[key] = {
+                  id: p.id,
+                  name: p.full_name || p.email,
+                  phone: p.phone || 'Non renseigné',
+                  email: p.email,
+                  totalOrders: 0,
+                  totalSpent: 0,
+                  lastOrderDate: p.created_at,
+                  city: 'Tunisie'
+                };
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('[AdminController] Profile fetch warning:', err);
         }
       }
 
