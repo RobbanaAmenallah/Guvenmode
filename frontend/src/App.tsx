@@ -18,16 +18,16 @@ import { AuthPages } from './pages/AuthPages.js';
 import { AccountPage } from './pages/AccountPage.js';
 import { AboutPage, ContactPage, DeliveryReturnsPage } from './pages/ContentPages.js';
 
-// Admin Pages
-import { AdminDashboardPage } from './pages/admin/AdminDashboardPage.js';
-import { AdminOrdersPage } from './pages/admin/AdminOrdersPage.js';
-import { AdminProductsPage } from './pages/admin/AdminProductsPage.js';
-import { AdminInventoryPage } from './pages/admin/AdminInventoryPage.js';
-import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage.js';
-import { AdminPromotionsPage } from './pages/admin/AdminPromotionsPage.js';
-import { AdminCustomersPage } from './pages/admin/AdminCustomersPage.js';
-import { AdminMessagesPage } from './pages/admin/AdminMessagesPage.js';
-import { AdminSettingsPage } from './pages/admin/AdminSettingsPage.js';
+// Admin Pages (Code-split via dynamic import for ultra-fast initial storefront bundle)
+const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminDashboardPage.js').then(m => ({ default: m.AdminDashboardPage })));
+const AdminOrdersPage = React.lazy(() => import('./pages/admin/AdminOrdersPage.js').then(m => ({ default: m.AdminOrdersPage })));
+const AdminProductsPage = React.lazy(() => import('./pages/admin/AdminProductsPage.js').then(m => ({ default: m.AdminProductsPage })));
+const AdminInventoryPage = React.lazy(() => import('./pages/admin/AdminInventoryPage.js').then(m => ({ default: m.AdminInventoryPage })));
+const AdminCategoriesPage = React.lazy(() => import('./pages/admin/AdminCategoriesPage.js').then(m => ({ default: m.AdminCategoriesPage })));
+const AdminPromotionsPage = React.lazy(() => import('./pages/admin/AdminPromotionsPage.js').then(m => ({ default: m.AdminPromotionsPage })));
+const AdminCustomersPage = React.lazy(() => import('./pages/admin/AdminCustomersPage.js').then(m => ({ default: m.AdminCustomersPage })));
+const AdminMessagesPage = React.lazy(() => import('./pages/admin/AdminMessagesPage.js').then(m => ({ default: m.AdminMessagesPage })));
+const AdminSettingsPage = React.lazy(() => import('./pages/admin/AdminSettingsPage.js').then(m => ({ default: m.AdminSettingsPage })));
 import { useCartStore } from './stores/useCartStore.js';
 import { useAuthStore } from './stores/useAuthStore.js';
 
@@ -110,8 +110,26 @@ export const App: React.FC = () => {
             />
           </Route>
 
-          {/* Dedicated SaaS Admin Dashboard Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          {/* Dedicated SaaS Admin Dashboard Routes (Lazy Loaded) */}
+          <Route
+            path="/admin"
+            element={
+              <React.Suspense
+                fallback={
+                  <div className="flex items-center justify-center min-h-screen bg-stone-50">
+                    <div className="text-center space-y-3">
+                      <div className="w-8 h-8 border-2 border-guven-blue border-t-transparent rounded-full animate-spin mx-auto" />
+                      <p className="text-xs font-semibold uppercase tracking-widest text-stone-500">
+                        Chargement de l'administration...
+                      </p>
+                    </div>
+                  </div>
+                }
+              >
+                <AdminLayout />
+              </React.Suspense>
+            }
+          >
             <Route index element={<AdminDashboardPage />} />
             <Route path="commandes" element={<AdminOrdersPage />} />
             <Route path="produits" element={<AdminProductsPage />} />

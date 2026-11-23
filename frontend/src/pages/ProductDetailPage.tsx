@@ -421,15 +421,16 @@ export const ProductDetailPage: React.FC = () => {
                 <button
                   key={col.color_name}
                   onClick={() => setSelectedColor(col.color_name)}
-                  className={`relative p-0.5 rounded-full border-2 transition-all ${
+                  className={`relative min-w-[44px] min-h-[44px] p-1.5 rounded-full border-2 flex items-center justify-center transition-all ${
                     selectedColor === col.color_name
-                      ? 'border-guven-blue scale-110'
-                      : 'border-transparent hover:scale-105'
+                      ? 'border-guven-blue scale-105 shadow-sm'
+                      : 'border-stone-200 hover:border-guven-blue'
                   }`}
                   title={col.color_name}
+                  aria-label={`Choisir le coloris ${col.color_name}`}
                 >
                   <span
-                    className="block w-6 h-6 rounded-full border border-black/15"
+                    className="block w-7 h-7 rounded-full border border-black/15 shadow-inner"
                     style={{ backgroundColor: col.color_hex }}
                   />
                 </button>
@@ -465,12 +466,12 @@ export const ProductDetailPage: React.FC = () => {
                     key={sz}
                     disabled={!isSzAvailable}
                     onClick={() => setSelectedSize(sz)}
-                    className={`py-3 text-xs rounded-xl border text-center transition-all ${
+                    className={`min-h-[44px] py-3 text-xs rounded-xl border text-center transition-all ${
                       selectedSize === sz
                         ? 'border-guven-blue bg-guven-blue text-white font-bold shadow-sm'
                         : isSzAvailable
-                        ? 'border-guven-border text-guven-charcoal hover:border-guven-blue bg-white'
-                        : 'border-guven-border/40 text-guven-muted/40 bg-guven-ivory/50 cursor-not-allowed line-through'
+                        ? 'border-stone-300 text-stone-800 hover:border-guven-blue bg-white font-medium'
+                        : 'border-stone-200 text-stone-400 bg-stone-100/60 cursor-not-allowed line-through'
                     }`}
                   >
                     {sz}

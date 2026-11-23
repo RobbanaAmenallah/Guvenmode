@@ -35,7 +35,11 @@ if (targetUrl && (serviceKey || anonKey)) {
   });
   console.log('✓ Supabase client initialized with endpoint:', targetUrl, `(role: ${role || 'custom'})`);
 } else {
-  console.log('ℹ Supabase credentials not found in env. Running with built-in persistent store.');
+  if (env.NODE_ENV === 'production') {
+    console.error('❌ ERREUR FATALE: Supabase n\'est pas configuré en environnement de production (SUPABASE_URL ou clés manquantes). Arrêt immédiat.');
+    process.exit(1);
+  }
+  console.log('ℹ Supabase credentials not found in env. Running with built-in development store.');
 }
 
 export const getSupabase = (): SupabaseClient | null => supabaseClient;

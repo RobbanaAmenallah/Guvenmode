@@ -4,7 +4,7 @@ import { CatalogController } from '../controllers/catalogController.js';
 import { CheckoutController } from '../controllers/checkoutController.js';
 import { OrderController } from '../controllers/orderController.js';
 import { AuthController } from '../controllers/authController.js';
-import { requireAuth } from '../middlewares/auth.js';
+import { authenticate, requireAuth } from '../middlewares/auth.js';
 import { authLimiter, checkoutAndPromoLimiter } from '../middlewares/rateLimiter.js';
 
 export const publicRoutes = Router();
@@ -31,6 +31,6 @@ publicRoutes.post('/newsletter/subscribe', checkoutAndPromoLimiter, CatalogContr
 // Contact & Conciergerie Message
 publicRoutes.post('/contact', checkoutAndPromoLimiter, CatalogController.submitContactMessage);
 
-// Checkout & Order Tracking (strictly authenticated)
-publicRoutes.post('/checkout', requireAuth, checkoutAndPromoLimiter, CheckoutController.checkout);
-publicRoutes.get('/orders/:reference', requireAuth, OrderController.getOrderByReference);
+// Checkout (supports both authenticated customer and Guest COD checkout)
+publicRoutes.post('/checkout', authenticate, checkoutAndPromoLimiter, CheckoutController.checkout);
+publicRoutes.get('/orders/:reference', authenticate, OrderController.getOrderByReference);

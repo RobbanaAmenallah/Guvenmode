@@ -44,18 +44,28 @@ export class CheckoutController {
         });
       }
 
-      if (!req.user) {
+      // For COD (Cash on Delivery), guest checkout is supported.
+      // If user is authenticated, we link customerId to their profile.
+      const isCod = (parsed.data.paymentMethod || 'cod') === 'cod';
+      if (!req.user && !isCod) {
         return res.status(401).json({
           success: false,
-          error: { message: 'Connexion requise pour passer une commande', statusCode: 401 }
+          error: { message: 'Connexion requise pour ce mode de paiement', statusCode: 401 }
         });
       }
 
-      // Strictly bind order to authenticated user ID (prevent spoofing customerId)
+      // Format Tunisian phone number
+      const cleanPhone = parsed.data.customerPhone.replace(/[\s\-\.]/g, '').replace(/^(\+216|00216)/, '');
+
       const input = {
         ...parsed.data,
-        customerId: req.user.id,
-        guestEmail: req.user.email || parsed.data.guestEmail
+        customerPhone: cleanPhone,
+        shippingAddress: {
+          ...parsed.data.shippingAddress,
+          phone: parsed.data.shippingAddress.phone.replace(/[\s\-\.]/g, '').replace(/^(\+216|00216)/, '')
+        },
+        customerId: req.user ? req.user.id : null,
+        guestEmail: req.user ? (req.user.email || parsed.data.guestEmail) : (parsed.data.guestEmail || null)
       };
 
       const order = await CheckoutService.processCheckout(input);

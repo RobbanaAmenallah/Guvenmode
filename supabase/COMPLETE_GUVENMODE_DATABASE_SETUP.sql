@@ -24,7 +24,11 @@ $$ LANGUAGE plpgsql;
 
 -- Helper to check if current user is an admin
 CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN AS $$
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
 BEGIN
     RETURN EXISTS (
         SELECT 1 FROM public.user_roles
@@ -32,7 +36,7 @@ BEGIN
         AND role IN ('admin', 'super_admin')
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- ====================================================================
 -- 3. PROFILES, ROLES & ADDRESSES

@@ -197,17 +197,24 @@ export class CheckoutService {
 
     const totalAmount = Number((subtotal - discountAmount + shippingAmount).toFixed(3));
 
-    // 6. Generate sequential order number
-    let orderCount = 0;
+    // 6. Generate collision-free order number using database sequence or timestamp entropy
+    let orderNumber = '';
     if (supabase) {
-      const { count } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-      orderCount = count || 0;
-    } else {
-      orderCount = db.orders.length;
+      try {
+        const { data: seqNumber, error: rpcErr } = await supabase.rpc('generate_order_number');
+        if (!rpcErr && seqNumber) {
+          orderNumber = seqNumber;
+        }
+      } catch (e) {
+        // Fallback to timestamp-based sequence if RPC is unavailable
+      }
     }
 
-    const nextNum = 1000 + orderCount + 1;
-    const orderNumber = `GM-${new Date().getFullYear()}-${nextNum}`;
+    if (!orderNumber) {
+      const uniqueTimestamp = `${Date.now().toString().slice(-6)}${Math.floor(10 + Math.random() * 90)}`;
+      orderNumber = `GM-${new Date().getFullYear()}-${uniqueTimestamp}`;
+    }
+
     const orderId = uuidv4();
 
     const shippingSnapshot = {
@@ -268,13 +275,39 @@ export class CheckoutService {
           line_total: item.lineTotal
         });
 
-        // Update inventory reservation
+        // Update inventory reservation and log movement
         const { data: inv } = await supabase.from('inventory').select('*').eq('variant_id', item.variantId).maybeSingle();
         if (inv) {
-          const newRes = (inv.quantity_reserved || 0) + item.quantity;
-          await supabase.from('inventory').update({ quantity_reserved: newRes }).eq('variant_id', item.variantId);
+          const currentRes = Number(inv.quantity_reserved) || 0;
+          const newRes = currentRes + item.quantity;
+          await supabase.from('inventory').update({ quantity_reserved: newRes, updated_at: new Date().toISOString() }).eq('variant_id', item.variantId);
+
+          await supabase.from('inventory_movements').insert({
+            id: uuidv4(),
+            variant_id: item.variantId,
+            movement_type: 'reservation',
+            quantity_delta: item.quantity,
+            quantity_before: inv.quantity_on_hand,
+            quantity_after: inv.quantity_on_hand,
+            reserved_before: currentRes,
+            reserved_after: newRes,
+            reason: `Réservation commande ${orderNumber}`,
+            reference_type: 'order',
+            reference_id: orderId,
+            created_at: new Date().toISOString()
+          });
         }
       }
+
+      // Record initial order status history
+      await supabase.from('order_status_history').insert({
+        id: uuidv4(),
+        order_id: orderId,
+        old_status: 'none',
+        new_status: 'pending',
+        note: 'Commande passée par le client (Paiement à la livraison)',
+        created_at: new Date().toISOString()
+      });
 
       // Create Admin Notification
       await supabase.from('notifications').insert({

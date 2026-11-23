@@ -73,68 +73,6 @@ export const CheckoutPage: React.FC = () => {
     );
   }
 
-  // Authentication barrier: guest must login or register to checkout
-  if (!isAuthenticated) {
-    return (
-      <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-6">
-        <div className="w-16 h-16 bg-guven-blue/10 text-guven-blue rounded-full flex items-center justify-center mx-auto">
-          <Lock className="w-8 h-8" />
-        </div>
-        <div className="space-y-2">
-          <h2 className="font-serif text-3xl font-bold text-guven-charcoal">
-            Connexion Requise pour Commander
-          </h2>
-          <p className="text-sm text-guven-muted max-w-md mx-auto">
-            Pour assurer le suivi personnalisé de votre commande et la sécurité de vos informations, veuillez vous connecter ou créer votre compte GÜVEN MODE.
-          </p>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-guven-border shadow-luxury text-left space-y-3">
-          <div className="flex justify-between items-center text-xs font-semibold text-guven-charcoal border-b border-guven-border pb-2">
-            <span>Articles réservés dans votre panier ({items.reduce((s, i) => s + i.quantity, 0)})</span>
-            <span className="text-guven-blue font-bold">{subtotal.toFixed(3)} DT</span>
-          </div>
-          <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
-            {items.map((item) => (
-              <div key={item.variant_id} className="flex items-center gap-3 text-xs">
-                <img
-                  src={item.product.images[0]?.storage_path || ''}
-                  alt={item.product.name}
-                  className="w-10 h-12 object-cover rounded-lg bg-guven-ivory shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-guven-charcoal truncate">{item.product.name}</p>
-                  <p className="text-guven-muted">{item.variant.color_name} • Taille {item.variant.size_label} • Qté: {item.quantity}</p>
-                </div>
-                <div className="font-semibold text-guven-charcoal">
-                  {((item.variant.price_override ?? item.product.base_price) * item.quantity).toFixed(3)} DT
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          <Link
-            to="/connexion"
-            state={{ from: { pathname: '/commande' } }}
-            className="px-8 py-3.5 bg-guven-blue hover:bg-guven-blue-deep text-white rounded-full text-xs font-bold uppercase tracking-[0.15em] transition-all shadow-md flex items-center justify-center gap-2"
-          >
-            <span>Se Connecter</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            to="/inscription"
-            state={{ from: { pathname: '/commande' } }}
-            className="px-8 py-3.5 border border-guven-charcoal hover:bg-guven-charcoal hover:text-white text-guven-charcoal rounded-full text-xs font-bold uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-2"
-          >
-            <span>Créer un Compte</span>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   // Handle Promo Validation
   const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,6 +176,22 @@ export const CheckoutPage: React.FC = () => {
             <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {!isAuthenticated && (
+            <div className="bg-guven-blue/5 border border-guven-blue/20 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-guven-charcoal">
+                <Lock className="w-4 h-4 text-guven-blue shrink-0" />
+                <span>Vous avez déjà un compte ? Connectez-vous pour retrouver vos adresses enregistrées.</span>
+              </div>
+              <Link
+                to="/connexion"
+                state={{ from: { pathname: '/commande' } }}
+                className="text-guven-blue font-bold hover:underline shrink-0"
+              >
+                Se connecter &rarr;
+              </Link>
             </div>
           )}
 

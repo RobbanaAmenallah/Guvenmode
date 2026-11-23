@@ -133,6 +133,7 @@ export class InventoryService {
         reserved_after: prevRes,
         reason,
         reference_type: 'manual_adjustment',
+        created_by: adminId || null,
         created_at: new Date().toISOString()
       });
 

@@ -180,6 +180,113 @@ export class OrderService {
   ): Promise<Order> {
     const supabase = getSupabase();
     if (supabase) {
+      // 1. Fetch current order with its items to determine required stock adjustments
+      const { data: currentOrder } = await supabase
+        .from('orders')
+        .select('*, items:order_items(*)')
+        .eq('id', orderId)
+        .maybeSingle();
+
+      const previousStatus = currentOrder?.status || 'pending';
+
+      // 2. Prevent redundant execution if status is already identical
+      if (currentOrder && currentOrder.status === newStatus) {
+        return mapSupabaseOrder(currentOrder);
+      }
+
+      // 3. Inventory Stock Adjustment Logic
+      if (currentOrder && Array.isArray(currentOrder.items)) {
+        // A) If cancelling an active order -> Release reserved stock
+        if (
+          newStatus === 'cancelled' &&
+          !['cancelled', 'shipped', 'delivered', 'returned'].includes(previousStatus)
+        ) {
+          for (const item of currentOrder.items) {
+            if (item.variant_id) {
+              const { data: inv } = await supabase
+                .from('inventory')
+                .select('*')
+                .eq('variant_id', item.variant_id)
+                .maybeSingle();
+
+              if (inv) {
+                const currentRes = Number(inv.quantity_reserved) || 0;
+                const newRes = Math.max(0, currentRes - (item.quantity || 0));
+
+                await supabase
+                  .from('inventory')
+                  .update({ quantity_reserved: newRes, updated_at: new Date().toISOString() })
+                  .eq('id', inv.id);
+
+                await supabase.from('inventory_movements').insert({
+                  id: uuidv4(),
+                  variant_id: item.variant_id,
+                  movement_type: 'release',
+                  quantity_delta: item.quantity,
+                  quantity_before: inv.quantity_on_hand,
+                  quantity_after: inv.quantity_on_hand,
+                  reserved_before: currentRes,
+                  reserved_after: newRes,
+                  reason: note || `Annulation commande ${currentOrder.order_number}`,
+                  reference_type: 'order',
+                  reference_id: orderId,
+                  created_by: adminId || null,
+                  created_at: new Date().toISOString()
+                });
+              }
+            }
+          }
+        }
+        // B) If shipping or delivering -> Deduct from physical on-hand and reserved stock
+        else if (
+          ['shipped', 'delivered'].includes(newStatus) &&
+          !['shipped', 'delivered', 'cancelled', 'returned'].includes(previousStatus)
+        ) {
+          for (const item of currentOrder.items) {
+            if (item.variant_id) {
+              const { data: inv } = await supabase
+                .from('inventory')
+                .select('*')
+                .eq('variant_id', item.variant_id)
+                .maybeSingle();
+
+              if (inv) {
+                const currentOnHand = Number(inv.quantity_on_hand) || 0;
+                const currentRes = Number(inv.quantity_reserved) || 0;
+                const newOnHand = Math.max(0, currentOnHand - (item.quantity || 0));
+                const newRes = Math.max(0, currentRes - (item.quantity || 0));
+
+                await supabase
+                  .from('inventory')
+                  .update({
+                    quantity_on_hand: newOnHand,
+                    quantity_reserved: newRes,
+                    updated_at: new Date().toISOString()
+                  })
+                  .eq('id', inv.id);
+
+                await supabase.from('inventory_movements').insert({
+                  id: uuidv4(),
+                  variant_id: item.variant_id,
+                  movement_type: 'deduction',
+                  quantity_delta: -(item.quantity || 0),
+                  quantity_before: currentOnHand,
+                  quantity_after: newOnHand,
+                  reserved_before: currentRes,
+                  reserved_after: newRes,
+                  reason: note || `Expédition/Livraison commande ${currentOrder.order_number}`,
+                  reference_type: 'order',
+                  reference_id: orderId,
+                  created_by: adminId || null,
+                  created_at: new Date().toISOString()
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // 4. Update order record in database
       const updatePayload: any = {
         status: newStatus,
         updated_at: new Date().toISOString()
@@ -194,11 +301,11 @@ export class OrderService {
 
       await supabase.from('orders').update(updatePayload).eq('id', orderId);
 
-      // Add status history entry
+      // 5. Add status history entry
       await supabase.from('order_status_history').insert({
         id: uuidv4(),
         order_id: orderId,
-        old_status: 'status_changed',
+        old_status: previousStatus,
         new_status: newStatus,
         changed_by: adminId || null,
         note: note || `Statut mis à jour vers ${newStatus}`
