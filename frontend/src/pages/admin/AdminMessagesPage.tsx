@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   Mail, Phone, MessageSquare, PhoneCall, CheckCircle2, 
   Clock, Trash2, Search, RefreshCw, Send, CheckCheck, 
-  ExternalLink, UserCheck, MessageCircle, AlertCircle
+  ExternalLink, UserCheck, MessageCircle, AlertCircle, Radio
 } from 'lucide-react';
 import { api } from '../../api/client.js';
+import { supabase } from '../../lib/supabase.js';
 
 interface ContactMessage {
   id: string;
@@ -25,10 +26,11 @@ export const AdminMessagesPage: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'unread' | 'replied'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (showSpinner = false) => {
     try {
-      setLoading(true);
+      if (showSpinner) setLoading(true);
       const res: any = await api.get('/admin/messages');
       const data = res.data || res;
       setMessages(data.messages || []);
@@ -36,14 +38,43 @@ export const AdminMessagesPage: React.FC = () => {
     } catch (err) {
       console.error('Erreur chargement messages:', err);
     } finally {
-      setLoading(false);
+      if (showSpinner) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 10000); // 10s auto-refresh for live messages
-    return () => clearInterval(interval);
+    fetchMessages(true);
+
+    // ⚡ SUPABASE POSTGRESQL REALTIME WEBSOCKET SUBSCRIPTION
+    const channel = supabase
+      .channel('guven-realtime-messages-feed')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications' },
+        (payload) => {
+          console.log('[Supabase Realtime] Changement détecté sur public.notifications:', payload);
+          fetchMessages(false);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'contact_messages' },
+        (payload) => {
+          console.log('[Supabase Realtime] Changement détecté sur public.contact_messages:', payload);
+          fetchMessages(false);
+        }
+      )
+      .subscribe((status) => {
+        setRealtimeConnected(status === 'SUBSCRIBED');
+      });
+
+    // Polling backup
+    const interval = setInterval(() => fetchMessages(false), 8000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleUpdateStatus = async (id: string, newStatus: 'unread' | 'read' | 'replied') => {
@@ -127,9 +158,15 @@ export const AdminMessagesPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Supabase Realtime Status Pill */}
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold shadow-xs">
+            <span className={`w-2.5 h-2.5 rounded-full ${realtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-400'}`} />
+            <span>Supabase PostgreSQL • Temps Réel Actif</span>
+          </div>
+
           <button
-            onClick={fetchMessages}
+            onClick={() => fetchMessages(true)}
             disabled={loading}
             className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold flex items-center gap-2 border border-gray-200 transition-colors"
           >

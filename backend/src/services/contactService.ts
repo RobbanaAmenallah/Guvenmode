@@ -14,29 +14,8 @@ export interface ContactMessage {
   updated_at?: string;
 }
 
-// In-memory fallback cache
-const memoryMessages: ContactMessage[] = [
-  {
-    id: 'msg-demo-1',
-    name: 'Syrine Ben Amor',
-    email: 'syrine.ba@gmail.com',
-    phone: '+216 98 450 120',
-    subject: 'Conseil taille & mensurations',
-    message: 'Bonjour, je mesure 1m72 et j\'hésite entre la taille 38 et 40 pour la Robe de Soirée Émeraude Impériale. Pouvez-vous me conseiller ?',
-    status: 'unread',
-    created_at: new Date(Date.now() - 3600000 * 3).toISOString()
-  },
-  {
-    id: 'msg-demo-2',
-    name: 'Inès Karray',
-    email: 'ines.karray@yahoo.fr',
-    phone: '+216 22 789 345',
-    subject: 'Demande Sur-Mesure',
-    message: 'Bonjour l\'équipe Güven Mode, je prépare mes fiançailles pour le mois prochain. Est-il possible d\'ajuster la longueur du Tailleur Pantalon Ivoire ?',
-    status: 'read',
-    created_at: new Date(Date.now() - 3600000 * 24).toISOString()
-  }
-];
+// In-memory fallback cache only if database is unreachable
+const memoryMessages: ContactMessage[] = [];
 
 export class ContactService {
   /**
@@ -126,7 +105,7 @@ export class ContactService {
     search?: string;
   } = {}): Promise<{ messages: ContactMessage[]; unreadCount: number }> {
     const supabase = getSupabase();
-    let resultMessages: ContactMessage[] = [...memoryMessages];
+    let resultMessages: ContactMessage[] = [];
 
     if (supabase) {
       try {
@@ -196,7 +175,10 @@ export class ContactService {
         }
       } catch (err) {
         console.warn('[ContactService] Error fetching from Supabase, using memory:', err);
+        resultMessages = [...memoryMessages];
       }
+    } else {
+      resultMessages = [...memoryMessages];
     }
 
     // Sort descending by date

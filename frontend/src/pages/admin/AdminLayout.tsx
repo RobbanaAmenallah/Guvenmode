@@ -8,6 +8,7 @@ import {
 import { BrandLogo } from '../../components/common/BrandLogo.js';
 import { useAuthStore } from '../../stores/useAuthStore.js';
 import { api } from '../../api/client.js';
+import { supabase } from '../../lib/supabase.js';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -42,8 +43,27 @@ export const AdminLayout: React.FC = () => {
   useEffect(() => {
     if (!isAuthenticated || !isAdmin) return;
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 5000); // Poll every 5s for live notifications
-    return () => clearInterval(interval);
+
+    // ⚡ Supabase Realtime channel for global admin notifications & messages
+    const channel = supabase
+      .channel('admin-layout-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications' },
+        () => fetchNotifications()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'contact_messages' },
+        () => fetchNotifications()
+      )
+      .subscribe();
+
+    const interval = setInterval(fetchNotifications, 10000); // Poll backup
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
   }, [isAuthenticated, isAdmin]);
 
   // Close mobile drawer on route change
