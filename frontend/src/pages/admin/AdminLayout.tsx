@@ -3,7 +3,7 @@ import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-d
 import { 
   LayoutDashboard, ShoppingBag, Package, Layers, 
   Tag, Users, Settings, ExternalLink, LogOut, 
-  Boxes, ShieldCheck, Menu, X, Bell, CheckCheck 
+  Boxes, ShieldCheck, Menu, X, Bell, CheckCheck, MessageSquare 
 } from 'lucide-react';
 import { BrandLogo } from '../../components/common/BrandLogo.js';
 import { useAuthStore } from '../../stores/useAuthStore.js';
@@ -17,15 +17,20 @@ export const AdminLayout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  // Poll / fetch notifications periodically only for verified admins
+  // Poll / fetch notifications and messages periodically only for verified admins
   const fetchNotifications = async () => {
     if (!isAuthenticated || !isAdmin) return;
     try {
-      const res: any = await api.get('/admin/notifications');
+      const [res, msgRes]: any = await Promise.all([
+        api.get('/admin/notifications'),
+        api.get('/admin/messages').catch(() => ({ data: { unreadCount: 0 } }))
+      ]);
       setNotifications(res.notifications || []);
       setUnreadCount(res.unreadCount || 0);
+      setUnreadMessagesCount(msgRes.data?.unreadCount || msgRes.unreadCount || 0);
     } catch (err: any) {
       if (err?.statusCode === 401 || err?.statusCode === 403) {
         logout();
@@ -79,7 +84,11 @@ export const AdminLayout: React.FC = () => {
         setUnreadCount((c) => Math.max(0, c - 1));
       }
       setNotificationsOpen(false);
-      navigate('/admin/commandes');
+      if (notif.type === 'contact_message' || notif.type === 'contact_alert') {
+        navigate('/admin/messages');
+      } else {
+        navigate('/admin/commandes');
+      }
     } catch (err) {
       console.error(err);
     }
@@ -91,6 +100,7 @@ export const AdminLayout: React.FC = () => {
     { label: 'Produits', path: '/admin/produits', icon: Package },
     { label: 'Stock & Inventaire', path: '/admin/stock', icon: Boxes },
     { label: 'Catégories & Collections', path: '/admin/categories', icon: Layers },
+    { label: 'Messages & Conciergerie', path: '/admin/messages', icon: MessageSquare, badge: unreadMessagesCount },
     { label: 'Promotions', path: '/admin/promotions', icon: Tag },
     { label: 'Clients', path: '/admin/clients', icon: Users },
     { label: 'Paramètres du Site', path: '/admin/parametres', icon: Settings },
@@ -121,14 +131,23 @@ export const AdminLayout: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   isActive
                     ? 'bg-guven-blue text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3">
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
+                    isActive ? 'bg-white text-guven-blue' : 'bg-guven-blue text-white animate-pulse'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}

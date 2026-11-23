@@ -28,6 +28,9 @@ publicRoutes.post('/promotions/validate', checkoutAndPromoLimiter, CatalogContro
 // Newsletter
 publicRoutes.post('/newsletter/subscribe', checkoutAndPromoLimiter, CatalogController.subscribeNewsletter);
 
+// Contact & Conciergerie Message
+publicRoutes.post('/contact', checkoutAndPromoLimiter, CatalogController.submitContactMessage);
+
 // Checkout & Order Tracking (strictly authenticated)
 publicRoutes.post('/checkout', requireAuth, checkoutAndPromoLimiter, CheckoutController.checkout);
 publicRoutes.get('/orders/:reference', requireAuth, OrderController.getOrderByReference);

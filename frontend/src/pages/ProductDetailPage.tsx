@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { 
   Heart, ShoppingBag, ShieldCheck, Truck, RefreshCw, 
   Ruler, Check, AlertCircle, ChevronRight, ZoomIn, X, Loader2, Video, Play,
-  Volume2, VolumeX, Pause, Image as ImageIcon
+  Volume2, VolumeX, Pause, Image as ImageIcon, Maximize2, Sparkles
 } from 'lucide-react';
 import { api } from '../api/client.js';
 import { Product, ProductVariant } from '../types/index.js';
@@ -79,6 +79,17 @@ export const ProductDetailPage: React.FC = () => {
       });
     }
   }, [showVideo, product?.video_url]);
+
+  const toggleFullscreen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      } else {
+        videoRef.current.requestFullscreen().catch(() => {});
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -204,19 +215,25 @@ export const ProductDetailPage: React.FC = () => {
 
           {/* Main Visual */}
           <div className="relative flex-1 aspect-[3/4] rounded-3xl overflow-hidden bg-guven-ivory border border-guven-border shadow-luxury">
-            {showVideo && product.video_url ? (
-              <div className="relative w-full h-full bg-black group">
+            {/* Ultra-smooth Video Player (Preloaded & hardware-accelerated for zero buffering) */}
+            {product.video_url && (
+              <div
+                className={`relative w-full h-full bg-black group z-10 transition-opacity duration-300 ${
+                  showVideo ? 'block opacity-100' : 'hidden opacity-0 pointer-events-none'
+                }`}
+              >
                 <video
                   ref={videoRef}
                   src={product.video_url}
                   poster={images[0]?.storage_path}
-                  preload="metadata"
+                  preload="auto"
                   autoPlay
                   muted={isMuted}
                   loop
                   playsInline
                   disablePictureInPicture
                   controlsList="nodownload"
+                  style={{ transform: 'translateZ(0)', willChange: 'transform' }}
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
                   className="w-full h-full object-cover object-center cursor-pointer"
@@ -229,10 +246,10 @@ export const ProductDetailPage: React.FC = () => {
                 />
 
                 {/* Video Top Badges */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
+                <div className="absolute top-4 left-4 flex flex-col gap-2 z-20 pointer-events-none">
                   <span className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-black/60 text-white backdrop-blur-md rounded-full flex items-center gap-1.5 shadow-lg border border-white/10 pointer-events-auto">
                     <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    <span>Vidéo Haute Définition</span>
+                    <span>Haute Définition 1080p</span>
                   </span>
                   {hasDiscount && (
                     <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider bg-guven-blue text-white rounded-full shadow-sm pointer-events-auto">
@@ -245,104 +262,118 @@ export const ProductDetailPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowVideo(false)}
-                  className="absolute top-4 right-4 px-3.5 py-1.5 text-xs font-semibold bg-white/95 hover:bg-white text-guven-charcoal rounded-full backdrop-blur-md shadow-md transition-all flex items-center gap-1.5 z-10 hover:scale-105"
+                  className="absolute top-4 right-4 px-3.5 py-1.5 text-xs font-semibold bg-white/95 hover:bg-white text-guven-charcoal rounded-full backdrop-blur-md shadow-md transition-all flex items-center gap-1.5 z-20 hover:scale-105"
                 >
                   <ImageIcon className="w-3.5 h-3.5 text-guven-blue" />
                   <span>Voir Photos HD</span>
                 </button>
 
                 {/* Video Floating Bottom Controls */}
-                <div className="absolute bottom-4 inset-x-4 flex items-center justify-between pointer-events-none z-10">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (videoRef.current) {
-                        if (isPlaying) videoRef.current.pause();
-                        else videoRef.current.play();
-                      }
-                    }}
-                    className="pointer-events-auto px-3.5 py-2 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md transition-all hover:scale-105 shadow-xl border border-white/15 flex items-center gap-1.5 text-xs font-semibold"
-                    title={isPlaying ? "Mettre en pause" : "Lire la vidéo"}
-                  >
-                    {isPlaying ? (
-                      <>
-                        <Pause className="w-4 h-4 text-guven-blue" />
-                        <span className="text-[11px]">Pause</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-4 h-4 text-guven-blue ml-0.5" />
-                        <span className="text-[11px]">Lecture</span>
-                      </>
-                    )}
-                  </button>
+                <div className="absolute bottom-4 inset-x-4 flex items-center justify-between pointer-events-none z-20">
+                  <div className="flex items-center gap-2 pointer-events-auto">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (videoRef.current) {
+                          if (isPlaying) videoRef.current.pause();
+                          else videoRef.current.play();
+                        }
+                      }}
+                      className="px-3.5 py-2 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md transition-all hover:scale-105 shadow-xl border border-white/15 flex items-center gap-1.5 text-xs font-semibold"
+                      title={isPlaying ? "Mettre en pause" : "Lire la vidéo"}
+                    >
+                      {isPlaying ? (
+                        <>
+                          <Pause className="w-4 h-4 text-guven-blue" />
+                          <span className="text-[11px]">Pause</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 text-guven-blue ml-0.5" />
+                          <span className="text-[11px]">Lecture</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (videoRef.current) {
+                          videoRef.current.muted = !isMuted;
+                          setIsMuted(!isMuted);
+                        }
+                      }}
+                      className="px-3.5 py-2 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md transition-all hover:scale-105 shadow-xl border border-white/15 flex items-center gap-1.5 text-xs font-semibold"
+                      title={isMuted ? "Activer le son" : "Couper le son"}
+                    >
+                      {isMuted ? (
+                        <>
+                          <VolumeX className="w-4 h-4 text-amber-400" />
+                          <span className="text-[11px]">Activer le son</span>
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="w-4 h-4 text-emerald-400" />
+                          <span className="text-[11px]">Son actif</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
 
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (videoRef.current) {
-                        videoRef.current.muted = !isMuted;
-                        setIsMuted(!isMuted);
-                      }
-                    }}
-                    className="pointer-events-auto px-3.5 py-2 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md transition-all hover:scale-105 shadow-xl border border-white/15 flex items-center gap-1.5 text-xs font-semibold"
-                    title={isMuted ? "Activer le son" : "Couper le son"}
+                    onClick={toggleFullscreen}
+                    className="pointer-events-auto p-2 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-md transition-all hover:scale-105 shadow-xl border border-white/15 text-xs"
+                    title="Plein écran"
                   >
-                    {isMuted ? (
-                      <>
-                        <VolumeX className="w-4 h-4 text-amber-400" />
-                        <span className="text-[11px]">Activer le son</span>
-                      </>
-                    ) : (
-                      <>
-                        <Volume2 className="w-4 h-4 text-emerald-400" />
-                        <span className="text-[11px]">Son actif</span>
-                      </>
-                    )}
+                    <Maximize2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-            ) : (
-              <>
-                <img
-                  src={images[activeImgIndex]?.storage_path}
-                  alt={product.name}
-                  className="w-full h-full object-cover object-top cursor-zoom-in"
-                  onClick={() => setIsZoomOpen(true)}
-                />
-
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                  {product.video_url && (
-                    <button
-                      onClick={() => setShowVideo(true)}
-                      className="px-3.5 py-2 text-xs font-bold uppercase tracking-wider bg-white/95 text-guven-charcoal backdrop-blur-sm rounded-full shadow-lg flex items-center gap-2 hover:bg-guven-blue hover:text-white transition-all ring-2 ring-guven-blue/20 hover:scale-105"
-                    >
-                      <div className="w-4 h-4 rounded-full bg-guven-blue flex items-center justify-center text-white">
-                        <Play className="w-2.5 h-2.5 ml-0.5" />
-                      </div>
-                      <span>Lancer la Vidéo</span>
-                    </button>
-                  )}
-                  {hasDiscount && (
-                    <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider bg-guven-blue text-white rounded-full shadow-sm">
-                      -{discountPercent}%
-                    </span>
-                  )}
-                </div>
-
-                {/* Zoom Trigger */}
-                <button
-                  onClick={() => setIsZoomOpen(true)}
-                  className="absolute bottom-4 right-4 p-2.5 bg-white/90 hover:bg-white text-guven-charcoal rounded-full backdrop-blur-sm shadow-md transition-all hover:scale-110"
-                  aria-label="Agrandir la photo"
-                >
-                  <ZoomIn className="w-5 h-5" />
-                </button>
-              </>
             )}
+
+            {/* Photo View (High priority & immediate load) */}
+            <div className={`relative w-full h-full ${showVideo && product.video_url ? 'hidden' : 'block'}`}>
+              <img
+                src={images[activeImgIndex]?.storage_path}
+                alt={product.name}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover object-top cursor-zoom-in transition-opacity duration-300"
+                onClick={() => setIsZoomOpen(true)}
+              />
+
+              {/* Badges */}
+              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                {product.video_url && (
+                  <button
+                    onClick={() => setShowVideo(true)}
+                    className="px-3.5 py-2 text-xs font-bold uppercase tracking-wider bg-white/95 text-guven-charcoal backdrop-blur-sm rounded-full shadow-lg flex items-center gap-2 hover:bg-guven-blue hover:text-white transition-all ring-2 ring-guven-blue/20 hover:scale-105"
+                  >
+                    <div className="w-4 h-4 rounded-full bg-guven-blue flex items-center justify-center text-white">
+                      <Play className="w-2.5 h-2.5 ml-0.5" />
+                    </div>
+                    <span>Lancer la Vidéo HD</span>
+                  </button>
+                )}
+                {hasDiscount && (
+                  <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider bg-guven-blue text-white rounded-full shadow-sm">
+                    -{discountPercent}%
+                  </span>
+                )}
+              </div>
+
+              {/* Zoom Trigger */}
+              <button
+                onClick={() => setIsZoomOpen(true)}
+                className="absolute bottom-4 right-4 p-2.5 bg-white/90 hover:bg-white text-guven-charcoal rounded-full backdrop-blur-sm shadow-md transition-all hover:scale-110"
+                aria-label="Agrandir la photo"
+              >
+                <ZoomIn className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
 

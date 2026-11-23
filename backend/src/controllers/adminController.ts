@@ -6,6 +6,7 @@ import { InventoryService } from '../services/inventoryService.js';
 import { CategoryService } from '../services/categoryService.js';
 import { PromotionService } from '../services/promotionService.js';
 import { SettingsService } from '../services/settingsService.js';
+import { ContactService } from '../services/contactService.js';
 import { db } from '../data/dbStore.js';
 import { getSupabase } from '../config/supabase.js';
 
@@ -429,6 +430,45 @@ export class AdminController {
         n.read = true;
       });
       res.json({ success: true, message: 'Toutes les notifications ont été marquées comme lues' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // Contact Messages & Conciergerie
+  public static async getContactMessages(req: Request, res: Response, next: NextFunction) {
+    try {
+      const status = req.query.status as string | undefined;
+      const search = req.query.search as string | undefined;
+      const data = await ContactService.getMessages({ status, search });
+      res.json({ success: true, data });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async updateContactMessageStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = String(req.params.id);
+      const { status } = req.body;
+      if (!['unread', 'read', 'replied'].includes(status)) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Statut invalide. Utilisez unread, read ou replied.', statusCode: 400 }
+        });
+      }
+      await ContactService.updateStatus(id, status);
+      res.json({ success: true, message: 'Statut du message mis à jour avec succès.' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async deleteContactMessage(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = String(req.params.id);
+      await ContactService.deleteMessage(id);
+      res.json({ success: true, message: 'Message supprimé avec succès.' });
     } catch (err) {
       next(err);
     }

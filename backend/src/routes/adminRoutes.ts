@@ -61,3 +61,8 @@ adminRoutes.get('/customers', AdminController.getCustomers);
 adminRoutes.get('/notifications', AdminController.getNotifications);
 adminRoutes.patch('/notifications/read-all', AdminController.markAllNotificationsRead);
 adminRoutes.patch('/notifications/:id/read', AdminController.markNotificationRead);
+
+// Contact Messages & Conciergerie (Client Inquiries)
+adminRoutes.get('/messages', AdminController.getContactMessages);
+adminRoutes.patch('/messages/:id/status', AdminController.updateContactMessageStatus);
+adminRoutes.delete('/messages/:id', AdminController.deleteContactMessage);

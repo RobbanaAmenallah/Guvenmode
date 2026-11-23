@@ -3,6 +3,7 @@ import { CategoryService } from '../services/categoryService.js';
 import { PromotionService } from '../services/promotionService.js';
 import { SettingsService } from '../services/settingsService.js';
 import { ProductService } from '../services/productService.js';
+import { ContactService } from '../services/contactService.js';
 
 export class CatalogController {
   public static async getCategories(req: Request, res: Response, next: NextFunction) {
@@ -91,6 +92,34 @@ export class CatalogController {
       const { email } = req.body;
       const result = await SettingsService.subscribeNewsletter(email);
       res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async submitContactMessage(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { name, email, phone, subject, message } = req.body;
+      if (!name || !email || !phone || !message) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Nom, email, numéro de téléphone et message sont obligatoires.', statusCode: 400 }
+        });
+      }
+
+      const created = await ContactService.createMessage({
+        name,
+        email,
+        phone,
+        subject,
+        message
+      });
+
+      res.status(201).json({
+        success: true,
+        data: created,
+        message: 'Votre message a été transmis avec succès. Notre équipe vous recontactera très rapidement.'
+      });
     } catch (err) {
       next(err);
     }

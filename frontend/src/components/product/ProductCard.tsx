@@ -58,24 +58,43 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Product Image Frame */}
       <Link
         to={`/produit/${product.slug}`}
-        className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-guven-ivory block"
+        className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-guven-ivory block shadow-xs group-hover:shadow-md transition-shadow"
       >
-        {isHovered && product.video_url ? (
+        {/* Instant Autoplay Video with zero lag */}
+        {product.video_url && (
           <video
             src={product.video_url}
-            autoPlay
+            preload="auto"
             muted
             loop
             playsInline
-            className="h-full w-full object-cover object-center"
-          />
-        ) : (
-          <img
-            src={isHovered && secondaryImg ? secondaryImg : primaryImg}
-            alt={product.name}
-            className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+            poster={primaryImg}
+            ref={(el) => {
+              if (el) {
+                if (isHovered) {
+                  const playPromise = el.play();
+                  if (playPromise !== undefined) {
+                    playPromise.catch(() => {});
+                  }
+                } else {
+                  el.pause();
+                }
+              }
+            }}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-300 z-[1] ${
+              isHovered ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            }`}
           />
         )}
+
+        {/* High Resolution Image with lazy loading */}
+        <img
+          src={isHovered && secondaryImg && !product.video_url ? secondaryImg : primaryImg}
+          alt={product.name}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+        />
 
         {/* Badges Overlay */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">

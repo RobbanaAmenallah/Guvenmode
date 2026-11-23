@@ -26,6 +26,7 @@ import { AdminInventoryPage } from './pages/admin/AdminInventoryPage.js';
 import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage.js';
 import { AdminPromotionsPage } from './pages/admin/AdminPromotionsPage.js';
 import { AdminCustomersPage } from './pages/admin/AdminCustomersPage.js';
+import { AdminMessagesPage } from './pages/admin/AdminMessagesPage.js';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage.js';
 import { useCartStore } from './stores/useCartStore.js';
 import { useAuthStore } from './stores/useAuthStore.js';
@@ -118,6 +119,7 @@ export const App: React.FC = () => {
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="promotions" element={<AdminPromotionsPage />} />
             <Route path="clients" element={<AdminCustomersPage />} />
+            <Route path="messages" element={<AdminMessagesPage />} />
             <Route path="parametres" element={<AdminSettingsPage />} />
           </Route>
         </Routes>
