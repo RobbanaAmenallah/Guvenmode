@@ -1,7 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
-import { getSupabase } from '../config/supabase.js';
+import { createClient } from '@supabase/supabase-js';
+import { env } from '../config/env.js';
 import { uuidv4 } from '../utils/uuid.js';
+
+// Dedicated storage client with service_role privileges to ensure storage RLS bypass
+const adminStorageClient = env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    })
+  : null;
 
 const MIME_TO_EXT: Record<string, string> = {
   'image/jpeg': '.jpg',
@@ -91,10 +99,10 @@ export class UploadController {
       const safePrefix = file.mimetype.startsWith('video') ? 'video' : 'photo';
       const fileName = `${safePrefix}_${Date.now()}_${uuidv4().substring(0, 8)}${ext}`;
 
-      const supabase = getSupabase();
+      const storage = adminStorageClient;
 
-      if (supabase) {
-        const { error } = await supabase.storage
+      if (storage) {
+        const { error } = await storage.storage
           .from('product-media')
           .upload(fileName, file.buffer, {
             contentType: file.mimetype,
@@ -105,11 +113,14 @@ export class UploadController {
           console.error('Supabase Storage upload error:', error);
           return res.status(500).json({
             success: false,
-            error: { message: 'Échec du téléversement sur le stockage Cloud', statusCode: 500 }
+            error: {
+              message: `Échec du téléversement sur le stockage Cloud: ${error.message}`,
+              statusCode: 500
+            }
           });
         }
 
-        const { data: { publicUrl } } = supabase.storage
+        const { data: { publicUrl } } = storage.storage
           .from('product-media')
           .getPublicUrl(fileName);
 

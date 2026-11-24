@@ -15,13 +15,13 @@ services:
       - key: SUPABASE_URL
         value: https://ggxtshlqpdibwdgzhlmq.supabase.co
       - key: SUPABASE_ANON_KEY
-        sync: false
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdneHRzaGxxcGRpYndkZ3pobG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwNDY5MDMsImV4cCI6MjEwODYyMjkwM30.XO1hqgs4UBSKh7IN3kMiJ0UZp8hfnHZL7hm00Onv9xo
       - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdneHRzaGxxcGRpYndkZ3pobG1xIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzA0NjkwMywiZXhwIjoyMTA4NjIyOTAzfQ.uV19m6Pglo619x-2AzDLBWXnvig5rKkdKT_mC_iWzEY
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        sync: false
+        value: https://guvenmode-frontend.onrender.com
 
   # GÜVEN MODE - Frontend Boutique (Static Site Vite/React)
   - type: web
@@ -36,8 +36,8 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        sync: false
+        value: https://guvenmode-backend.onrender.com/api
       - key: VITE_SUPABASE_URL
         value: https://ggxtshlqpdibwdgzhlmq.supabase.co
       - key: VITE_SUPABASE_ANON_KEY
-        sync: false
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdneHRzaGxxcGRpYndkZ3pobG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwNDY5MDMsImV4cCI6MjEwODYyMjkwM30.XO1hqgs4UBSKh7IN3kMiJ0UZp8hfnHZL7hm00Onv9xo
